@@ -1,1 +1,1 @@
-Local library project
+**Local library project**
