@@ -78,11 +78,103 @@ app.get('/api/checkSession', (req, res) => {
     }
 });
 
+//get user story for book
+app.get('/api/book/users/reading/:id', (req, res) => {
+    const query = `
+    select
+        "Users".id,
+        "Users"."firstName",
+        "Users"."secondName",
+        "UserBookList".progress
+    from "Books"
+        inner join "UserBookList" on "Books".id = "UserBookList"."bookId" and "UserBookList".state = 'Читаю'
+        inner join "Users" on "UserBookList"."userId" = "Users".id
+    where "Books".id = ${req.params.id}`
+    pg.query(`select id from "Books" where id = ${req.params.id}`, (err, response) => {
+        if (err != null) {
+            res.status(404).send('Bad request, database error')
+            //console.log(err)
+        } else {
+            if (response.rows.length === 0)
+                res.status(404).send("Book not found")
+            else {
+                pg.query(query, (err, response) => {
+                    res.status(200).send(JSON.stringify(response.rows));
+                })
+            }
+        }
+    });
+})
 
-// get single book
+// get single book info
 app.get('/api/book/:id', (req, res) => {
-    const book = bookData.filter(book => book.id + '' === req.params.id + '')
-    book.length !== 0 ? res.status(200).send(book) : res.status(404).send('Book not found')
+    const query = `
+    select
+        "Books".id,
+        "Books".name,
+        "Books"."releaseYear",
+        "Books".about,
+        "Books".tags,
+        "Books".amount,
+        "Books".pages,
+        "Books"."lastUpdate",
+        "Books"."publicDate",
+        "Books".author,
+        "Images".data,
+        "Images".type,
+        (select count ("Ratings".rate) filter (where "Ratings".rate > 0) as likes from "Ratings" where "Ratings"."objectId" = "Books".id),
+        (select count ("Ratings".rate) filter (where "Ratings".rate < 0) as dislikes from "Ratings" where "Ratings"."objectId" = "Books".id)
+    from "Books"
+        inner join "Images" on "Books".image = "Images".id
+    where "Books".id = ${req.params.id}`
+    pg.query(`select id from "Books" where id = ${req.params.id}`, (err, response) => {
+        if (err != null) {
+            res.status(404).send('Bad request, database error')
+            //console.log(err)
+        } else {
+            if (response.rows.length === 0)
+                res.status(404).send("Book not found")
+            else {
+                pg.query(query, (err, response) => {
+                    res.status(200).send(JSON.stringify(response.rows));
+                })
+            }
+        }
+    });
+})
+
+// get comment story book
+app.get('/api/book/comments/:id', (req, res) => {
+    const query = `
+    select 
+        "Comments".id,
+        "Comments"."userId",
+        "Comments".message,
+        "Comments".date,
+        "Users"."firstName",
+        "Users"."secondName",
+        "Users"."role",
+        "Images".data,
+        "Images".type
+    from "Comments"
+        inner join "Users" on "Comments"."userId" = "Users".id
+        inner join "Books" on "Comments"."bookId" = "Books".id
+        inner join "Images" on "Users".avatar = "Images".id
+    where "Books".id = ${req.params.id}`
+    pg.query(`select id from "Books" where id = ${req.params.id}`, (err, response) => {
+        if (err != null) {
+            res.status(404).send('Bad request, database error')
+            //console.log(err)
+        } else {
+            if (response.rows.length === 0)
+                res.status(404).send("no comments")
+            else {
+                pg.query(query, (err, response) => {
+                    res.status(200).send(JSON.stringify(response.rows));
+                })
+            }
+        }
+    });
 })
 
 // get booklist
