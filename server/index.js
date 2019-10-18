@@ -24,10 +24,10 @@ pg.connect();
 // constants
 
 const order = {
-    bookName : `"Books".name`,
-    year : `"Books"."releaseYear"`,
-    update : `"Books"."lastUpdate"`,
-    author : `"Books".author`,
+    bookName: `"Books".name`,
+    year: `"Books"."releaseYear"`,
+    update: `"Books"."lastUpdate"`,
+    author: `"Books".author`,
 }
 
 // middleware
@@ -77,6 +77,60 @@ app.get('/api/checkSession', (req, res) => {
         res.status(404).send('timeout')
     }
 });
+
+//Add book
+app.post('/api/add/book', (req, res) => {
+    const allowedTypes = ['png', 'jpg', 'jpeg']
+    const img = {
+        type: req.body.imgData.slice(req.body.imgData.indexOf('/') + 1, req.body.imgData.indexOf(';')),
+        data: req.body.imgData.slice(req.body.imgData.indexOf(',') + 1)
+    }
+
+    if (!checkData(req.body)) {
+
+        res.status(406).send('Недопустимые данные для добавления книги')
+    } else {
+        if (allowedTypes.indexOf(img.type) === -1) {
+
+            res.status(406).send('Изображение должно быть одного из следуюших форматов: jpg, jpeg, png')
+        } else {
+
+            const imgQuery = `INSERT INTO "Images"(type, data) VALUES ('${img.type}', '${img.data}') RETURNING id;`
+            pg.query(imgQuery, (err, response) => {
+                if (err != null) {
+
+                    res.status(415).send('Could not add image in database')
+                    console.log(err)
+                } else {
+
+                    const tags = `{"${req.body.tags.join("\", \"")}"}`
+                    const author = `{"${req.body.author.join("\", \"")}"}`
+                    const query = `
+                    INSERT INTO public."Books"(
+                        name, "releaseYear", about, tags, amount, pages, "publicDate", image, author)
+                    VALUES (
+                        '${req.body.name}',
+                        '${new Date(req.body.releaseYear).toISOString()}',
+                        '${req.body.about}',
+                        '${tags}',
+                        ${req.body.amount},
+                        ${req.body.pages},
+                        '${new Date(req.body.publicDate).toISOString()}',
+                        ${response.rows[0].id},
+                        '${author}');`
+                    pg.query(query, (err, response) => {
+                        if (err != null) {
+
+                            res.status(400).send('Could not add book in database')
+                            console.log(err)
+                        }
+                        res.status(200).send("Книга успешно добавлена");
+                    });
+                }
+            })
+        }
+    }
+})
 
 //get user story for book
 app.get('/api/book/users/reading/:id', (req, res) => {
@@ -205,7 +259,7 @@ app.use('/api/books/*tags/:tags*', (req, res, next) => {
     next()
 })
 app.use('/api/books/*keywords/:keywords*', (req, res, next) => {
-    req.data.keywords = req.params.keywords         
+    req.data.keywords = req.params.keywords
     next()
 })
 app.use('/api/books/*count/:count*', (req, res, next) => {
@@ -218,7 +272,7 @@ app.use('/api/books/*page/:page*', (req, res, next) => {
 })
 app.get('/api/books/*', (req, res) => {
     //database query
-    const query =`
+    const query = `
         select
         "Books".id,
         "Books".name,
@@ -259,8 +313,26 @@ app.get('/api/books/*', (req, res) => {
     //console.log(req.data)
 })
 
-
 // 404 page
 app.get('*', (req, res) => {
     res.status(404).send("Page not found")
 })
+
+function checkData(data) {
+    return data.name.length > 80 ? false :
+        Date.parse(new Date(data.releaseYear)) === NaN ? false :
+            data.about.length > 200 ? false :
+                checkMass(data.tags) ? false :
+                    !(isFinite(data.amount)) || data.amount.toString().length > 5 ? false :
+                        !(isFinite(data.pages)) || data.pages.toString().length > 5 ? false :
+                            Date.parse(new Date(data.publicDate)) === NaN || (Math.abs((new Date(data.publicDate) - new Date()) / 86400000) > 1) ? false :
+                                checkMass(data.author) ? false : true
+}
+
+function checkMass(mass) {
+    var wrongMass = false
+    mass.forEach(item => {
+        if (item.length > 20) wrongMass = true
+    });
+    return wrongMass
+}
