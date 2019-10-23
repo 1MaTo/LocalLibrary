@@ -30,6 +30,7 @@ const order = {
     author: `"Books".author`,
 }
 
+
 // middleware
 app.listen(8181, function () {
 });
@@ -81,16 +82,19 @@ app.get('/api/checkSession', (req, res) => {
 //Add book
 app.post('/api/add/book', (req, res) => {
     const allowedTypes = ['png', 'jpg', 'jpeg']
-    const img = {
-        type: req.body.imgData.slice(req.body.imgData.indexOf('/') + 1, req.body.imgData.indexOf(';')),
-        data: req.body.imgData.slice(req.body.imgData.indexOf(',') + 1)
-    }
+    const img = req.body.imgData === null ? {
+        type: null,
+        data: null
+    } : {
+            type: req.body.imgData.slice(req.body.imgData.indexOf('/') + 1, req.body.imgData.indexOf(';')),
+            data: req.body.imgData.slice(req.body.imgData.indexOf(',') + 1)
+        }
 
     if (!checkData(req.body)) {
 
         res.status(406).send('Недопустимые данные для добавления книги')
     } else {
-        if (allowedTypes.indexOf(img.type) === -1) {
+        if (allowedTypes.indexOf(img.type) === -1 && img.type !== null) {
 
             res.status(406).send('Изображение должно быть одного из следуюших форматов: jpg, jpeg, png')
         } else {
@@ -130,6 +134,108 @@ app.post('/api/add/book', (req, res) => {
             })
         }
     }
+})
+
+//Update Book
+app.post('/api/update/book/:id', (req, res) => {
+    let updateObjects = []
+    for (var key in req.body) {
+        if (key === 'tags' || key === 'author') {
+            req.body[key] = `{"${req.body[key].join("\", \"")}"}`
+        }
+        if (key === 'releaseYear') {
+            req.body[key] = `${new Date(req.body.releaseYear).toISOString()}`
+        }
+        if (key !== 'imgData') {
+            updateObjects.push(`"${key}"='${req.body[key]}'`)
+        }
+    }
+
+    let imgUpdate = updateImage(req.body.imgData, req.params.id)
+
+    imgUpdate.then(
+        result => {
+            updateObjects = updateObjects.join(',')
+            const query = `UPDATE public."Books"
+                    SET 
+                        ${updateObjects}
+                    WHERE id = ${req.params.id};`
+            pg.query(query, (err, response) => {
+                if (err != null) {
+                    res.status(400).send('Could not update book')
+                    console.log(err)
+                } else {
+                    res.status(200).send("Данные обновлены");
+                }
+            });
+        },
+        error => {
+            console.log(error)
+            res.status(400).send('Error on image')
+        }
+    )
+})
+
+//Delete Book
+app.post('/api/delete/book/:id', (req, res) => {
+
+    const imagesQuery = `DELETE FROM "Images" where id = (select "image" from "Books" where id = ${req.params.id})`
+    const commentsQuery = `DELETE FROM "Comments" where "bookId" = ${req.params.id}`
+    const raitingsQuery = `DELETE FROM "Ratings" where "objectId" = ${req.params.id} and "objectType" = 'book'`
+    const userBookListQuery = `DELETE FROM "UserBookList" where "bookId" = ${req.params.id}`
+    const booksQuery = `DELETE FROM "Books" where id = ${req.params.id}`
+
+    pg.query('BEGIN', (err, response) => {
+        if (err != null) {
+            console.log(err)
+            return
+        } else {
+            pg.query(imagesQuery, (err, response) => {
+                if (err != null) {
+                    console.log(err)
+                    return pg.query('ROLLBACK')
+                } else {
+                    pg.query(commentsQuery, (err, response) => {
+                        if (err != null) {
+                            console.log(err)
+                            return pg.query('ROLLBACK')
+                        } else {
+                            pg.query(raitingsQuery, (err, response) => {
+                                if (err != null) {
+                                    console.log(err)
+                                    return pg.query('ROLLBACK')
+                                } else {
+                                    pg.query(userBookListQuery, (err, response) => {
+                                        if (err != null) {
+                                            console.log(err)
+                                            return pg.query('ROLLBACK')
+                                        } else {
+                                            pg.query(booksQuery, (err, response) => {
+                                                if (err != null) {
+                                                    console.log(err)
+                                                    return pg.query('ROLLBACK')
+                                                } else {
+                                                    pg.query('COMMIT', (err, response) => {
+                                                        if (err != null) {
+                                                            console.log(err)
+                                                            pg.query('ROLLBACK')
+                                                            res.status(400).send('Ошибка при удалении книги')
+                                                        } else {
+                                                            res.status(200).send('Книга и все данные о ней удалены')
+                                                        }
+                                                    })
+                                                }
+                                            })
+                                        }
+                                    })
+                                }
+                            })
+                        }
+                    })
+                }
+            })
+        };
+    })
 })
 
 //get user story for book
@@ -318,6 +424,7 @@ app.get('*', (req, res) => {
     res.status(404).send("Page not found")
 })
 
+// Check data before adding in data base
 function checkData(data) {
     return data.name.length > 80 ? false :
         Date.parse(new Date(data.releaseYear)) === NaN ? false :
@@ -329,10 +436,42 @@ function checkData(data) {
                                 checkMass(data.author) ? false : true
 }
 
+// Check data in massives for max length
 function checkMass(mass) {
     var wrongMass = false
     mass.forEach(item => {
         if (item.length > 20) wrongMass = true
     });
     return wrongMass
+}
+
+// Promise to update image to object with id
+function updateImage(imgData, id) {
+    return new Promise((resolve, reject) => {
+        if (imgData !== undefined) {
+            const allowedTypes = ['png', 'jpg', 'jpeg']
+            const img = {
+                type: imgData.slice(imgData.indexOf('/') + 1, imgData.indexOf(';')),
+                data: imgData.slice(imgData.indexOf(',') + 1)
+            }
+            if (allowedTypes.indexOf(img.type) === -1) {
+                reject('Bad image type')
+            } else {
+                const imgQuery = `UPDATE "Images"  
+                                    SET "type"='${img.type}', 
+                                    "data"='${img.data}' 
+                                    WHERE id = (select "image" from "Books" where id = ${id});`
+                pg.query(imgQuery, (err, response) => {
+                    if (err != null) {
+                        reject('BD error: ', err)
+                        console.log(err)
+                    } else {
+                        resolve('image updated')
+                    }
+                })
+            }
+        } else {
+            resolve('nothing updated')
+        }
+    })
 }
