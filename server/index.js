@@ -79,6 +79,175 @@ app.get('/api/checkSession', (req, res) => {
     }
 });
 
+//Like or Dislike book
+app.post('/api/user/reaction/:object', (req, res) => {
+
+    checkRating(req.body.userId, req.body.bookId, req.body.rate, 'book')
+        .then(
+            equal => {
+                pg.query(`DELETE FROM "Ratings" WHERE id = ${equal}`, (err, response) => {
+                    if (err != null) {
+                        console.log(err)
+                        res.status(400).send('Ошибка при удалении текущего рейтинга')
+                    } else {
+                        res.status(200).send('Рейтинг обновлен(удален)')
+                    }
+                })
+            },
+            different => {
+                if (different != null && different !== 'error') {
+                    pg.query(`UPDATE "Ratings" SET "rate" = ${req.body.rate} WHERE id = ${different}`, (err, response) => {
+                        if (err != null) {
+                            console.log(err)
+                            res.status(400).send('Ошибка при удалении текущего рейтинга')
+                        } else {
+                            res.status(200).send('Рейтинг обновлен')
+                        }
+                    })
+                } else {
+                    let query = `INSERT INTO "Ratings" ("objectId", "userId", "rate", "objectType")
+                        VALUES (${req.body.bookId}, ${req.body.userId}, ${req.body.rate}, 'book');`
+                    pg.query(query, (err, response) => {
+                        if (err != null) {
+                            console.log(err)
+                            res.status(400).send('Ошибка при добавлении рейтинга')
+                        } else {
+                            res.status(200).send('Рейтинг добавлен')
+                        }
+                    })
+                }
+            }
+        )
+})
+
+//Add user
+app.post('/api/add/user', (req, res) => {
+
+    checkEmail(req.body.email).then(
+        result => {
+            addImage(req.body.imgData).then(
+                result => {
+                    const query = `
+                        INSERT INTO "Users" 
+                            ("firstName", "secondName", "email", "password", "role", "avatar")
+                        VALUES 
+                            ('${req.body.firstName}',
+                            '${req.body.secondName}',
+                            '${req.body.email}',
+                            '${req.body.password}',
+                            '${req.body.role}',
+                            ${result})`
+                    pg.query(query, (err, response) => {
+                        if (err != null) {
+                            res.status(400).send('Could not add user')
+                            console.log(err)
+                        } else {
+                            res.status(200).send("Пользователь добавлен");
+                        }
+                    });
+                },
+                error => {
+                    console.log(error)
+                    res.status(400).send('Error on image')
+                }
+            )
+        },
+        error => {
+            res.status(400).send('Пользователь с таким email уже зарегистрирован')
+        }
+    )
+})
+
+//Update user
+app.post('/api/update/user/:id', (req, res) => {
+    let updateObjects = []
+    for (var key in req.body) {
+        if (key !== 'imgData') {
+            updateObjects.push(`"${key}"='${req.body[key]}'`)
+        }
+    }
+    updateImage(req.body.imgData, req.params.id)
+        .then(
+            result => {
+                updateObjects = updateObjects.join(',')
+                const query = `UPDATE public."Users"
+                        SET 
+                            ${updateObjects}
+                        WHERE id = ${req.params.id};`
+                pg.query(query, (err, response) => {
+                    if (err != null) {
+                        res.status(400).send('Пользователь не обновлен')
+                        console.log(err)
+                    } else {
+                        res.status(200).send("Данные обновлены");
+                    }
+                });
+            },
+            error => {
+                console.log(error)
+                res.status(400).send('Ошибка при обновлении изображения')
+            }
+        )
+})
+
+//Delete user
+app.post('/api/delete/user/:id', (req, res) => {
+
+    const imagesQuery = `DELETE FROM "Images" where id = (select "avatar" from "Users" where id = ${req.params.id})`
+    const ratingsQuery = `DELETE FROM "Ratings" where "userId" = ${req.params.id}`
+    const userBookListQuery = `DELETE FROM "UserBookList" where "userId" = ${req.params.id}`
+    const usersQuery = `DELETE FROM "Users" where id = ${req.params.id}`
+
+    pg.query('BEGIN', (err, response) => {
+        if (err != null) {
+            console.log(err)
+            return
+        } else {
+            pg.query(imagesQuery, (err, response) => {
+                if (err != null) {
+                    console.log(err)
+                    return pg.query('ROLLBACK')
+                } else {
+                    console.log('Image deleted')
+                    pg.query(userBookListQuery, (err, response) => {
+                        if (err != null) {
+                            console.log(err)
+                            return pg.query('ROLLBACK')
+                        } else {
+                            console.log('UserBookList deleted')
+                            pg.query(ratingsQuery, (err, response) => {
+                                if (err != null) {
+                                    console.log(err)
+                                    return pg.query('ROLLBACK')
+                                } else {
+                                    console.log('Ratings deleted')
+                                    pg.query(usersQuery, (err, response) => {
+                                        if (err != null) {
+                                            console.log(err)
+                                            return pg.query('ROLLBACK')
+                                        } else {
+                                            console.log('Users deleted')
+                                            pg.query('COMMIT', (err, response) => {
+                                                if (err != null) {
+                                                    console.log(err)
+                                                    pg.query('ROLLBACK')
+                                                    res.status(400).send('Ошибка при удалении прользователя, не удален')
+                                                } else {
+                                                    res.status(200).send('Пользователь удален')
+                                                }
+                                            })
+                                        }
+                                    })
+                                }
+                            })
+                        }
+                    })
+                }
+            })
+        };
+    })
+})
+
 //Add book
 app.post('/api/add/book', (req, res) => {
     const allowedTypes = ['png', 'jpg', 'jpeg']
@@ -473,5 +642,74 @@ function updateImage(imgData, id) {
         } else {
             resolve('nothing updated')
         }
+    })
+}
+
+// Promise to add image for object
+function addImage(imgData) {
+    return new Promise((resolve, reject) => {
+        const allowedTypes = ['png', 'jpg', 'jpeg']
+        const img = imgData === null ? {
+            type: null,
+            data: null
+        } : {
+                type: imgData.slice(imgData.indexOf('/') + 1, imgData.indexOf(';')),
+                data: imgData.slice(imgData.indexOf(',') + 1)
+            }
+        if (allowedTypes.indexOf(img.type) === -1 && img.type !== null) {
+            reject('Bad image type')
+        } else {
+
+            const imgQuery = `INSERT INTO "Images"(type, data) VALUES ('${img.type}', '${img.data}') RETURNING id;`
+            pg.query(imgQuery, (err, response) => {
+                if (err != null) {
+                    reject('Could not add image in database')
+                } else {
+                    resolve(response.rows[0].id)
+                }
+            })
+
+        }
+    })
+}
+
+function checkEmail(email) {
+    return new Promise((resolve, reject) => {
+        pg.query(`SELECT id from "Users" where email = '${email}'`, (err, response) => {
+            if (err !== null) {
+                console.log(err)
+                reject('Error with checking email')
+            } else {
+                if (response.rowCount === 0) {
+                    resolve('No users with such email')
+                } else {
+                    reject('User with such email has already exist')
+                }
+            }
+        })
+    })
+}
+
+function checkRating(userId, objectId, rate, type) {
+    return new Promise((resolve, reject) => {
+        const query = `
+            select id, rate
+            from "Ratings" 
+            where 
+                "userId" = ${userId} and 
+                "objectId" = ${objectId} and
+                "objectType" = '${type}'`
+        pg.query(query, (err, response) => {
+            if (err !== null) {
+                console.log(err)
+                reject('error')
+            } else if (response.rowCount === 0) {
+                reject(null)
+            } else if (response.rows[0].rate === rate) {
+                resolve(response.rows[0].id)
+            } else {
+                reject(response.rows[0].id)
+            }
+        })
     })
 }
