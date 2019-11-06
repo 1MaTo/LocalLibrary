@@ -1,12 +1,13 @@
 var express = require('express');
-var bookData = require('./books.json')
 var cookieParser = require('cookie-parser')
 var cookieSession = require('cookie-session')
+var mail = require('./nodeMailer/nodeMailerWithTemp');
+var md5 = require('md5')
 var app = express();
 
 // database connection
 const Client = require('pg').Client;
-var serverURL = 'http://localhost:3000/';
+var serverURL = 'http://localhost:8181';
 const pg = new Client({
     user: 'postgres',
     host: '127.0.0.1',
@@ -31,13 +32,20 @@ const order = {
 }
 
 const actions = {
-    DELETE : 'DELETE',
-    ADD : 'ADD',
+    DELETE: 'DELETE',
+    ADD: 'ADD',
     UPDATE: 'UPDATE',
-    LIKE : 'LIKE',
+    LIKE: 'LIKE',
     DISLIKE: 'DISLIKE',
     LOGIN: 'LOGIN',
     LOGOUT: 'LOGOUT'
+}
+
+const roles = {
+    UNCONFIRMED: 'unconfirmed',
+    USER: 'user',
+    ADMIN: 'administrator',
+    MODERATOR: 'moderator',
 }
 
 // middleware
@@ -64,8 +72,7 @@ app.all('*', (request, response, next) => {
 app.post('/api/login', (req, res) => {
     checkLoginData(req.body.email, req.body.password)
         .then(
-            result => 
-            {   
+            result => {
                 req.session.id = result
                 log(actions.LOGIN, 'user', result, result)
                 res.status(200).send('successful logged')
@@ -81,6 +88,42 @@ app.post('/api/login', (req, res) => {
                 res.status(404).send('user nod found')
             }
         )
+})
+
+app.get('/api/confirmMail/:token', (req, res) => {
+    pg.query(`select id from "Users" where "registerToken" = '${req.params.token}'`, (err, response) => {
+        if (err != null) {
+            console.log(err)
+        } else {
+            if (response.rowCount !== 0) {
+                pg.query(`UPDATE "Users" SET role = '${roles.USER}'`, (err, response) => {
+                    if (err != null) {
+                        res.status(400).send('DataBase error')
+                        console.log(err)
+                    } else {
+                        res.status(200).send('Ваш адресс эклектронной почты подтвержден')
+                    }
+                })
+            }
+        }
+    })
+})
+
+app.get('/api/resendMail/:id', (req, res) => {
+    pg.query(`SELECT email, "firstName", "registerToken" 
+    from "Users" where id = ${req.params.id} and role = '${roles.UNCONFIRMED}'`, (err, response) => {
+        if (err != null) {
+            console.log(err)
+            res.status(400).send('DataBase error')
+        } else {
+            if (response.rowCount !== 0){
+                mail.sendVerify(response.rows[0].email, response.rows[0].firstName, serverURL + '/api/confirmMail/' + response.rows[0].registerToken)
+                res.status(200).send('Письмо отправлено')
+            } else {
+                res.status(404).send('Пользователь не найден')
+            }
+        }
+    })
 })
 
 // get booklist
@@ -269,8 +312,51 @@ app.get('*', (req, res) => {
     res.status(404).send("Page not found")
 })
 
+//Add user
+app.post('/api/add/user', (req, res) => {
+    checkEmail(req.body.email).then(
+        result => {
+            addImage(req.body.imgData).then(
+                result => {
+                    let token = md5(req.body.firstName + req.body.email + Date())
+                    const query = `
+                        INSERT INTO "Users" 
+                            ("firstName", "secondName", "email", "password", "role", "avatar", "gender", "registerToken")
+                        VALUES 
+                            ('${req.body.firstName}',
+                            '${req.body.secondName}',
+                            '${req.body.email}',
+                            '${req.body.password}',
+                            '${roles.UNCONFIRMED}',
+                            ${result},
+                            '${req.body.gender}',
+                            '${token}') RETURNING id;`
+                    pg.query(query, (err, response) => {
+                        if (err != null) {
+                            res.status(400).send('Could not add user')
+                            console.log(err)
+                        } else {
+                            mail.sendVerify(req.body.email, req.body.firstName, serverURL + '/api/confirmMail/' + token)
+                            log(actions.ADD, 'user', response.rows[0].id, response.rows[0].id)
+                            res.status(200).send("Пользователь добавлен");
+                        }
+                    });
+                },
+                error => {
+                    console.log(error)
+                    res.status(400).send('Error on image')
+                }
+            )
+        },
+        error => {
+            res.status(400).send('Пользователь с таким email уже зарегистрирован')
+        }
+    )
+})
+
 //For AUTHORIZED users only
 
+//Check login
 app.use('/api/*', (req, res, next) => {
     if (req.session.length) {
         next()
@@ -342,45 +428,6 @@ app.post('/api/user/reaction/:object', (req, res) => {
                 }
             }
         )
-})
-
-//Add user
-app.post('/api/add/user', (req, res) => {
-    checkEmail(req.body.email).then(
-        result => {
-            addImage(req.body.imgData).then(
-                result => {
-                    const query = `
-                        INSERT INTO "Users" 
-                            ("firstName", "secondName", "email", "password", "role", "avatar", "gender")
-                        VALUES 
-                            ('${req.body.firstName}',
-                            '${req.body.secondName}',
-                            '${req.body.email}',
-                            '${req.body.password}',
-                            '${req.body.role}',
-                            ${result},
-                            '${req.body.gender}') RETURNING id;`
-                    pg.query(query, (err, response) => {
-                        if (err != null) {
-                            res.status(400).send('Could not add user')
-                            console.log(err)
-                        } else {
-                            log(actions.ADD, 'user', response.rows[0].id, req.session.id)
-                            res.status(200).send("Пользователь добавлен");
-                        }
-                    });
-                },
-                error => {
-                    console.log(error)
-                    res.status(400).send('Error on image')
-                }
-            )
-        },
-        error => {
-            res.status(400).send('Пользователь с таким email уже зарегистрирован')
-        }
-    )
 })
 
 //Update user
@@ -786,7 +833,7 @@ function log(action, object, objectId, userId) {
 
 function checkLoginData(email, password) {
     return new Promise((resolve, reject) => {
-        const query = `select id from "Users" where email = '${email}'
+        const query = `select id, role from "Users" where email = '${email}'
         and password = '${password}'`
         pg.query(query, (err, response) => {
             if (err !== null) {
@@ -794,7 +841,11 @@ function checkLoginData(email, password) {
                 reject('Data base error')
             } else {
                 if (response.rowCount !== 0) {
-                    resolve(response.rows[0].id)
+                    if (response.rows[0].role === roles.UNCONFIRMED) {
+                        reject('Your email adress not confirmed yet')
+                    } else {
+                        resolve(response.rows[0].id)
+                    }
                 } else {
                     reject('user not found')
                 }
