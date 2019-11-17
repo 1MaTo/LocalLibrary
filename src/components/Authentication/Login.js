@@ -11,6 +11,9 @@ import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import Header from '../menu/HeaderMenu'
 import sha256 from 'js-sha256'
+import styled from 'styled-components'
+import { Password } from "./LoginInput/Password";
+import { TextInput } from "./LoginInput/TextInput";
 
 const useStyles = makeStyles(theme => ({
     paper: {
@@ -67,6 +70,11 @@ const validate = values => {
     return errors;
 };
 
+const LoginForm = styled(Form)`
+    && {
+
+    }
+`
 
 export default function SignUp(props) {
     const [isValidate, setValidate] = useState(true)
@@ -95,73 +103,108 @@ export default function SignUp(props) {
             }
         }
     }
+
+    const [errors, setErrors] = useState({
+        error: false,
+    })
+
+    const handleSubmit = data => {
+        console.log(errors)
+        setErrors({ ...errors, error: !errors.error })
+        alert(JSON.stringify(data))
+        console.log(errors)
+    }
+
     return (
-        <div className={classes.background}>
-            <Header />
-            <Form
-                onSubmit={changeLogin}
-                validate={validate}
-                render={({ handleSubmit, reset, submitting, pristine, values }) => (
-                    <Container component="main" maxWidth="xs">
-                        <CssBaseline />
-                        <div className={classes.paper}>
-                            <Avatar className={classes.avatar} style={dynamicStyles(isValidate,'avatar')}><LockOutlinedIcon /></Avatar>
-                            <Typography component="h1" variant="h5">Авторизация</Typography>
-                            <Typography style={dynamicStyles(isValidate,'toolTip')} className={classes.hiddenTooltip} component="h4" >Неправильное имя пользователя или пароль</Typography>
-                            <form onSubmit={handleSubmit} className={classes.form} validate>
-                                <Grid container spacing={2}>
-                                    <Grid item xs={12}>
-                                        <Field name="username" > 
-                                            {props => (
-                                                <TextField 
-                                                    variant="outlined"
-                                                    required
-                                                    fullWidth
-                                                    id="username"
-                                                    label="Логин"
-                                                    name={props.input.name}
-                                                    value={props.input.value}
-                                                    onChange={props.input.onChange}
-                                                    autoComplete="nickname"
-                                                    autoFocus
-                                                />
-                                            )}
-                                        </Field>
-                                    </Grid>
-                                    <Grid item xs={12}>
-                                        <Field name="password">
-                                            {props => (
-                                                <TextField
-                                                    variant="outlined"
-                                                    required
-                                                    fullWidth
-                                                    type="password"
-                                                    id="password"
-                                                    label="Пароль"
-                                                    name={props.input.name}
-                                                    value={props.input.value}
-                                                    onChange={props.input.onChange}
-                                                    autoComplete="password"
-                                                />
-                                            )}
-                                        </Field>
-                                    </Grid>
-                                </Grid>
-                                <Button
-                                    type="submit"
-                                    fullWidth
-                                    variant="contained"
-                                    color="primary"
-                                    className={classes.submit}>
-                                    Войти
-                                </Button>
-                                <Grid container justify="flex-end">
-                                </Grid>
-                            </form>
-                        </div>
-                    </Container>
-                )}
-            />
-        </div>
+        <Form
+            onSubmit={handleSubmit}
+            render={({ handleSubmit, reset, submitting, pristine, values }) => (
+                <form onSubmit={handleSubmit}>
+                    <Field name='email'>
+                        {props => (
+                            <TextInput
+                                props={props}
+                                error={errors.error}
+                                errorText={'Неправильные данные'}
+                                label={'Email'}
+                            />)}
+                    </Field>
+                    <Field name='password'>
+                        {props => (<Password props={props} error={errors.error} />)}
+                    </Field>
+                    <button type="submit" disabled={submitting || pristine}>
+                        Submit
+                    </button>
+                </form>
+            )}>
+        </Form>
     )
+    /*<div className={classes.background}>
+        <Header />
+        <Form
+            onSubmit={changeLogin}
+            validate={validate}
+            render={({ handleSubmit, reset, submitting, pristine, values }) => (
+                <Container component="main" maxWidth="xs">
+                    <CssBaseline />
+                    <div className={classes.paper}>
+                        <Avatar className={classes.avatar} style={dynamicStyles(isValidate,'avatar')}><LockOutlinedIcon /></Avatar>
+                        <Typography component="h1" variant="h5">Авторизация</Typography>
+                        <Typography style={dynamicStyles(isValidate,'toolTip')} className={classes.hiddenTooltip} component="h4" >Неправильное имя пользователя или пароль</Typography>
+                        <form onSubmit={handleSubmit} className={classes.form} validate>
+                            <Grid container spacing={2}>
+                                <Grid item xs={12}>
+                                    <Field name="username" > 
+                                        {props => (
+                                            <TextField 
+                                                variant="outlined"
+                                                required
+                                                fullWidth
+                                                id="username"
+                                                label="Логин"
+                                                name={props.input.name}
+                                                value={props.input.value}
+                                                onChange={props.input.onChange}
+                                                autoComplete="nickname"
+                                                autoFocus
+                                            />
+                                        )}
+                                    </Field>
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <Field name="password">
+                                        {props => (
+                                            <TextField
+                                                variant="outlined"
+                                                required
+                                                fullWidth
+                                                type="password"
+                                                id="password"
+                                                label="Пароль"
+                                                name={props.input.name}
+                                                value={props.input.value}
+                                                onChange={props.input.onChange}
+                                                autoComplete="password"
+                                            />
+                                        )}
+                                    </Field>
+                                </Grid>
+                            </Grid>
+                            <Button
+                                type="submit"
+                                fullWidth
+                                variant="contained"
+                                color="primary"
+                                className={classes.submit}>
+                                Войти
+                            </Button>
+                            <Grid container justify="flex-end">
+                            </Grid>
+                        </form>
+                    </div>
+                </Container>
+            )}
+        />
+    </div>
+)*/
 }

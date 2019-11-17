@@ -1,6 +1,7 @@
 const initialState = {
     bookList: [],
-    book: null
+    book: null,
+    user: null,
 }
 
 export function reducer(state = initialState, action) {
@@ -19,6 +20,11 @@ export function reducer(state = initialState, action) {
             return {
                 ...state,
                 book: null
+            }
+        case "SET_USER":
+            return {
+                ...state,
+                user: action.user
             }
         default:
             return state
