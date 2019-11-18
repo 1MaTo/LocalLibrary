@@ -8,35 +8,42 @@ import { Provider } from "react-redux"
 import { reducer } from './store/reducer'
 import { ThemeProvider } from '@material-ui/styles';
 import { theme } from './Theme/Theme'
+import { StylesProvider } from '@material-ui/styles';
+import { createGlobalStyle } from "styled-components"
 
-const useStyles = makeStyles(() =>
-  createStyles({
-    '@global a': {
-      color: 'inherit',
-      textDecoration: 'none',
-    },
-    '@global body': {
-      background: '#f9f9f9',
-      margin: 0,
-    }
-  })
-);
+
+const GlobalStyle = createGlobalStyle`
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+  body {
+    background: ${ props => props.theme.background.main};
+    margin: 0;
+  }
+  .MuiFormControl-root {
+    display: flex;
+    margin-bottom: 30px;
+  }
+
+`
 
 const store = createStore(reducer)
 
 function App() {
-
-
-  const classes = useStyles()
+  
   return (
-    <ThemeProvider theme={theme}>
-      <Provider store={store}>
-        <Router className={`${classes.a} ${classes.root}`}>
-          <Route path="/" exact component={Home} />
-          <Route path="/login" component={Login} />
-        </Router>
-      </Provider>
-    </ThemeProvider>
+    <StylesProvider injectFirst>
+      <ThemeProvider theme={theme}>
+        <Provider store={store}>
+          <Router>
+            <Route path="/" exact component={Home} />
+            <Route path="/login" component={Login} />
+          </Router>
+          <GlobalStyle theme={theme}/>
+        </Provider>
+      </ThemeProvider>
+    </StylesProvider>
   );
 }
 export default App;

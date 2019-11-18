@@ -19,7 +19,7 @@ export function TextInput({ props, error, errorText, label }) {
                 value={props.input.value}
                 onChange={props.input.onChange}
             />
-            {error ? <FormHelperText>{ errorText }</FormHelperText> : null}
+            {errorText ? <FormHelperText>{ errorText }</FormHelperText> : null}
         </FormControl>
     )
 }

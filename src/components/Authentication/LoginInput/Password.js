@@ -11,14 +11,11 @@ import { Visibility, VisibilityOff } from '@material-ui/icons';
 import styled from 'styled-components'
 import { theme } from '../../../Theme/Theme'
 
-const PasswordForm = styled(FormControl)`
-    && {
-        
-    }
-`
 const TextInput = styled(Input)`
-    && {
-        
+    .MuiIconButton-root {
+        &:hover {
+            background: transparent;
+        }
     }
 `
 
@@ -36,10 +33,10 @@ export function Password({ props, error }) {
     }
 
     return (
-        <PasswordForm>
+        <FormControl>
             <InputLabel>{'Пароль'}</InputLabel>
             <TextInput
-                color='secondary'
+                color='primary'
                 name={props.input.name}
                 autoComplete="current-password"
                 error={error}
@@ -57,7 +54,7 @@ export function Password({ props, error }) {
                     </InputAdornment>
                 }
             />
-            {error ? <FormHelperText>{'Неправильные данные'}</FormHelperText> : null}
-        </PasswordForm>
+            {error ? <FormHelperText>{}</FormHelperText> : null}
+        </FormControl>
     )
 }
