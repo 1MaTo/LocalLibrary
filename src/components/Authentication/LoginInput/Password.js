@@ -5,12 +5,21 @@ import {
     Input,
     InputAdornment,
     IconButton,
-    FormHelperText
+    FormHelperText,
 } from '@material-ui/core';
 import { Visibility, VisibilityOff } from '@material-ui/icons';
 import styled from 'styled-components'
+import { theme } from '../../../Theme/Theme'
 
 const PasswordForm = styled(FormControl)`
+    && {
+        
+    }
+`
+const TextInput = styled(Input)`
+    && {
+        
+    }
 `
 
 export function Password({ props, error }) {
@@ -27,9 +36,10 @@ export function Password({ props, error }) {
     }
 
     return (
-        <FormControl>
+        <PasswordForm>
             <InputLabel>{'Пароль'}</InputLabel>
-            <Input
+            <TextInput
+                color='secondary'
                 name={props.input.name}
                 autoComplete="current-password"
                 error={error}
@@ -48,6 +58,6 @@ export function Password({ props, error }) {
                 }
             />
             {error ? <FormHelperText>{'Неправильные данные'}</FormHelperText> : null}
-        </FormControl>
+        </PasswordForm>
     )
 }

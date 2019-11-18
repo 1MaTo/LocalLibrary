@@ -132,9 +132,12 @@ export default function SignUp(props) {
                     <Field name='password'>
                         {props => (<Password props={props} error={errors.error} />)}
                     </Field>
-                    <button type="submit" disabled={submitting || pristine}>
+                    <Button variant="contained" color="primary" type="submit" disabled={submitting || pristine}>
                         Submit
-                    </button>
+                    </Button>
+                    <Button variant="contained" color="secondary" type="submit" disabled={submitting || pristine}>
+                        Submit
+                    </Button>
                 </form>
             )}>
         </Form>
