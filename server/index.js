@@ -15,6 +15,7 @@ const pg = new Client({
     password: '',
     port: 5432,
 });
+
 /*var serverURL = 'https://ani-library.herokuapp.com/';
 const pg = new Client({
     connectionString: process.env.DATABASE_URL,
@@ -58,15 +59,28 @@ app.use(cookieSession({
     id: 0,
     keys: ["key1", "key2"],
 
-    maxAge: 60000
+    maxAge: 180000
 }))
 
 app.all('*', (request, response, next) => {
     console.log("Request to " + request.originalUrl)
-    response.setHeader('Access-Control-Allow-Origin', 'http://127.0.0.1:3000')
+    response.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000')
+    response.setHeader('Access-Control-Request-Methods', 'POST, GET, OPTIONS')
+    response.setHeader('Access-Control-Allow-Headers', 'Content-Type')
     response.setHeader('Access-Control-Allow-Credentials', 'true')
+    response.setHeader('Content-Type', 'application/json')
     next()
 })
+
+app.options('*', (request, response, next) => {
+    response.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000')
+    response.setHeader('Access-Control-Request-Methods', 'POST, GET, OPTIONS')
+    response.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+    response.setHeader('Access-Control-Allow-Credentials', 'true')
+    response.setHeader('Content-Type', 'application/json')
+    response.status(200).send()
+})
+
 
 // login
 app.post('/api/login', (req, res) => {
@@ -79,13 +93,13 @@ app.post('/api/login', (req, res) => {
             },
             error => {
                 console.log(error)
-                res.status(404).send('user nod found')
+                res.status(404).send('user not found')
             }
         )
         .catch(
             error => {
                 console.log(error)
-                res.status(404).send('user nod found')
+                res.status(404).send('user not found')
             }
         )
 })
@@ -116,7 +130,7 @@ app.get('/api/resendMail/:id', (req, res) => {
             console.log(err)
             res.status(400).send('DataBase error')
         } else {
-            if (response.rowCount !== 0){
+            if (response.rowCount !== 0) {
                 mail.sendVerify(response.rows[0].email, response.rows[0].firstName, serverURL + '/api/confirmMail/' + response.rows[0].registerToken)
                 res.status(200).send('Письмо отправлено')
             } else {
@@ -307,11 +321,6 @@ app.get('/api/book/comments/:id', (req, res) => {
     });
 })
 
-// 404 page
-app.get('*', (req, res) => {
-    res.status(404).send("Page not found")
-})
-
 //Add user
 app.post('/api/add/user', (req, res) => {
     checkEmail(req.body.email).then(
@@ -428,6 +437,42 @@ app.post('/api/user/reaction/:object', (req, res) => {
                 }
             }
         )
+})
+
+//Get account info
+app.get('/api/user/info', (req, res) => {
+    const query = `
+    select 
+        id,
+        "firstName",
+        "secondName",
+        "registerDate",
+        email,
+        password,
+        role,
+        avatar,
+        gender
+    from "Users"
+    where id = ${req.session.id}`
+
+    console.log(req.session.id)
+    pg.query(query, (err, response) => {
+        if (err != null) {
+            console.log(err)
+            res.status(404).send('Ошибка при получении данных о пользователе')
+        } else {
+            getImage(response.rows[0].avatar)
+                .then((result) => {
+                    response.rows[0].avatar = result
+                })
+                .catch(err => {
+                    console.log(err)
+                })
+                .finally(() => {
+                    res.status(200).send(JSON.stringify(response.rows[0]))
+                })
+        }
+    })
 })
 
 //Update user
@@ -689,9 +734,28 @@ app.post('/api/delete/book/:id', (req, res) => {
 })
 
 // 404 page
+app.get('*', (req, res) => {
+    res.status(404).send("Page not found")
+})
+
+// 404 page
 app.post('*', (req, res) => {
     res.status(404).send("Page not found")
 })
+
+function getImage(id) {
+    return new Promise((resolve, reject) => {
+        const query = `select type, data from "Images" where id = ${id}`
+        pg.query(query, (err, response) => {
+            if (err) {
+                reject(err)
+            } else {
+                const data = JSON.parse(JSON.stringify(response.rows[0].data))
+                resolve(response.rowCount ? {type: response.rows[0].type, data: data.data} : null)
+            }
+        })
+    })
+}
 
 // Check data before adding in data base
 function checkData(data) {

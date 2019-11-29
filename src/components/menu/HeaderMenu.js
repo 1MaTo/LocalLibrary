@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
 import { Container, Button, Typography } from '@material-ui/core';
 import { Link } from "react-router-dom"
@@ -8,6 +8,8 @@ import ListIcon from '@material-ui/icons/List';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import ExitToApp from '@material-ui/icons/ExitToApp';
 import LoginContext from '../../context/login';
+import axios from 'axios';
+import { useDispatch } from 'react-redux'
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -95,36 +97,35 @@ function MainMenuItems() {
 }
 
 function AuthenticationItems(props) {
+    
+    const dispatch = useDispatch()
+    
+    const logOut = () => {
+        axios
+            .post('api/logout')
+            .then(response => {
+                dispatch({ type: "SET_USER", user: { loggedIn: false } })
+                console.log('logOut')
+            })
+    }
+
     const classes = useStyles()
 
     return (<LoginContext.Consumer>
-        {value => value.login ?
-            (
-                <Container className={classes.authMenu}>
-                    <Button className={classes.auth}
-                        onClick={() => {
-                            value.changeLoginState(false)
-                            document.cookie = `sessionKey=null`
-                        }
-                        }>
-                        <Link className={classes.menu} href="/login" variant="body2">
-                            <ExitToApp className={classes.icon} /><Typography variant="subtitle2">Выход</Typography>
-                        </Link>
-                    </Button >
-                    <Button className={classes.auth} >
-                        <Link className={classes.menu} to="/lk" variant="body2">
-                            <AccountCircle className={classes.icon} /><Typography variant="subtitle2">{value.username}</Typography>
-                        </Link>
-                    </Button>
-                </Container>
-            ) : (
-                    <Button className={`${classes.auth} ${classes.buttonLayout}`} >
-                        <Link className={classes.menu} to='/login'>
-                            <AccountBox className={classes.icon} /><Typography variant="subtitle2">Вход</Typography>
-                        </Link>
-                    </Button>
-            )}
+        {value =>
+            <Container className={classes.authMenu}>
+                <Button className={`${classes.auth} ${classes.buttonLayout}`} >
+                    <Link className={classes.menu} to='/auth'>
+                        <AccountBox className={classes.icon} /><Typography variant="subtitle2">Вход</Typography>
+                    </Link>
+                </Button>
+                <Button onClick={logOut} className={`${classes.auth} ${classes.buttonLayout}`} >
+                    <Link className={classes.menu} to=''>
+                        <AccountBox className={classes.icon} /><Typography variant="subtitle2">Выход</Typography>
+                    </Link>
+                </Button>
+            </Container>
+        }
     </LoginContext.Consumer>
     )
-
 }

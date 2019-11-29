@@ -6,6 +6,11 @@ import { Password } from "./LoginInput/Password";
 import { TextInput } from "./LoginInput/TextInput";
 import { theme } from '../../Theme/Theme'
 import { AccountCircle } from '@material-ui/icons/';
+import { Loading } from '../Loading/Loading'
+import { Redirect, Link } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
+import md5 from 'md5'
+import axios from 'axios'
 
 const LoginForm = styled.form`
     display: flex;
@@ -41,52 +46,79 @@ const InvalidInput = styled(Typography)`
     text-align: center;
 `
 
+const RegisterLink = styled(Link)`
+    color: ${theme.primary.main};
+    &:hover {
+        text-decoration: underline;
+    }
+`
+const Register = styled(Typography)`
+        font-size: 0.85em;
+    margin-top: 5px;
+    color: ${theme.secondary.main};
+    width: fit-content;
+    align-self: center;
+`
+
 export default function SignUp(props) {
 
+    const dispatch = useDispatch()
     const [errors, setErrors] = useState({
         error: false,
     })
 
+    const [loading, setLoading] = useState(false)
+
     const handleSubmit = data => {
-        console.log(errors)
-        setErrors({ ...errors, error: !errors.error })
-        alert(JSON.stringify(data))
-        console.log(errors)
+        data.password = md5(data.password)
+        setLoading(true)
+        axios
+            .post('/api/login', data)
+            .then((response) => {
+                setLoading(false)
+                if (response.status === 200) {
+                    dispatch({ type: "SET_USER", user: { loggedIn: true } })
+                }
+            })
+            .catch(error => {
+                setLoading(false)
+                setErrors({ ...errors, error: true })
+            })
     }
 
     return (
         <LoginPage>
-            <Form
-                onSubmit={handleSubmit}
-                render={({ handleSubmit, reset, submitting, pristine, values }) => (
-                    <LoginForm onSubmit={handleSubmit}>
-
-                        <LoginLabel variant="h5" color="primary">
-                            <LoginIcon color="primary" />{'ВХОД'}
-                        </LoginLabel>
-                        <Field name='email'>
-                            {props => (
-                                <TextInput
-                                    props={props}
-                                    error={errors.error}
-                                    label={'Email'}
-                                />)}
-                        </Field>
-                        <Field name='password'>
-                            {props => (<Password props={props} error={errors.error} />)}
-                        </Field>
-                        <Button variant="contained" color="primary" type="submit" disabled={submitting || pristine}>
-                            {'Войти'}
-                        </Button>
-                        {
-                            errors.error ?
-                                <InvalidInput color="error">
-                                    {'Неправильный адрес почты или пароль'}
-                                </InvalidInput> : null
-                        }
-                    </LoginForm>
-                )}>
-            </Form>
+            {loading ? <Loading /> :
+                <Form
+                    onSubmit={handleSubmit}
+                    render={({ handleSubmit, reset, submitting, pristine, values }) => (
+                        <LoginForm onSubmit={handleSubmit}>
+                            <LoginLabel variant="h5" color="primary">
+                                <LoginIcon color="primary" />{'ВХОД'}
+                            </LoginLabel>
+                            <Field name='email'>
+                                {props => (
+                                    <TextInput
+                                        props={props}
+                                        error={errors.error}
+                                        label={'Email'}
+                                    />)}
+                            </Field>
+                            <Field name='password'>
+                                {props => (<Password props={props} error={errors.error} />)}
+                            </Field>
+                            <Button variant="contained" color="primary" type="submit" disabled={submitting || pristine}>
+                                {'Войти'}
+                            </Button>
+                                <Register variant="subtitle2">{'Нет аккаунта? '}<RegisterLink to="/auth/registration">{'Зарегистрируйтесь'}</RegisterLink></Register>
+                            {
+                                errors.error ?
+                                    <InvalidInput color="error">
+                                        {'Неправильный адрес почты или пароль'}
+                                    </InvalidInput> : null
+                            }
+                        </LoginForm>
+                    )} />}
         </LoginPage>
     )
 }

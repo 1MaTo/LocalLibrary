@@ -1,11 +1,42 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
-//import * as serviceWorker from './serviceWorker';
+import { createStore } from "redux"
+import { reducer } from './store/reducer'
+import { Provider } from "react-redux"
+import { ThemeProvider } from '@material-ui/styles';
+import { StylesProvider } from '@material-ui/styles';
+import { theme } from './Theme/Theme'
+import { createGlobalStyle } from "styled-components"
 
-ReactDOM.render(<App />, document.getElementById('root'));
+const GlobalStyle = createGlobalStyle`
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+  body {
+    background: ${ props => props.theme.background.main};
+    margin: 0;
+  }
+  .MuiFormControl-root {
+    display: flex;
+    margin-bottom: 30px;
+  }
 
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
-//serviceWorker.unregister();
+`
+const store = createStore(reducer)
+
+const Index = () => {
+    return (
+        <StylesProvider injectFirst>
+            <ThemeProvider theme={theme}>
+                <Provider store={store}>
+                    <App />
+                    <GlobalStyle theme={theme} />
+                </Provider>
+            </ThemeProvider>
+        </StylesProvider >
+    )
+}
+
+ReactDOM.render(<Index/>, document.getElementById('root'));

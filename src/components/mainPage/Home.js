@@ -1,20 +1,25 @@
-import React, { } from 'react';
-import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
+import React, { useEffect } from 'react';
+import { theme } from '../../Theme/Theme'
+import { useDispatch } from 'react-redux'
 import HeaderMenu from '../menu/HeaderMenu'
+import axios from 'axios'
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    background: {
-      background: '#f9f9f9',
-    },
-  })
-);
+
 
 export default function Home() {
-    const classes = useStyles();
-    return (
-        <div className={classes.background}>
-            <HeaderMenu />
-        </div>
-    )
+
+  /*axois
+  .get('/api/user/info')
+  .then((response) => {
+      console.log(response.data)
+  })
+  .catch(error => {
+      console.log(error.request)
+  })*/
+
+  return (
+    <div>
+      <HeaderMenu />
+    </div>
+  )
 }

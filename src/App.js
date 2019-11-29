@@ -1,49 +1,45 @@
-import React, { useState } from 'react';
-import { BrowserRouter as Router, Route, Redirect } from "react-router-dom"
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Route } from "react-router-dom"
 import Login from './components/Authentication/Login'
 import Home from './components/mainPage/Home'
-import { makeStyles, createStyles } from "@material-ui/core/styles";
-import { createStore } from "redux"
-import { Provider } from "react-redux"
-import { reducer } from './store/reducer'
-import { ThemeProvider } from '@material-ui/styles';
-import { theme } from './Theme/Theme'
-import { StylesProvider } from '@material-ui/styles';
-import { createGlobalStyle } from "styled-components"
+import { useDispatch } from 'react-redux'
+import { serverUrl } from './config'
+import axios from 'axios'
+import { useSelector } from 'react-redux'
+import Auth from './components/Authentication/Auth'
 
-
-const GlobalStyle = createGlobalStyle`
-  a {
-    color: inherit;
-    text-decoration: none;
-  }
-  body {
-    background: ${ props => props.theme.background.main};
-    margin: 0;
-  }
-  .MuiFormControl-root {
-    display: flex;
-    margin-bottom: 30px;
-  }
-
-`
-
-const store = createStore(reducer)
+axios.defaults.baseURL = serverUrl
+axios.defaults.headers.post['Content-Type'] = 'application/JSON';
+axios.defaults.headers.get['Content-Type'] = 'application/JSON';
+axios.defaults.withCredentials = true
 
 function App() {
-  
+
+  const dispatch = useDispatch()
+  const loggedIn = useSelector(state => state.user.loggedIn)
+
+  useEffect(() => {
+    axios
+      .get('/api/user/info')
+      .then((response) => {
+        console.log(response.status)
+        if (response.status === 200) {
+          dispatch({ type: "SET_USER", user: { loggedIn: true, ...response.data } })
+          const user = { loggedIn: true, ...response.data }
+          console.log(user)
+        }
+      })
+      .catch(error => {
+
+      })
+  })
+
   return (
-    <StylesProvider injectFirst>
-      <ThemeProvider theme={theme}>
-        <Provider store={store}>
-          <Router>
-            <Route path="/" exact component={Home} />
-            <Route path="/login" component={Login} />
-          </Router>
-          <GlobalStyle theme={theme}/>
-        </Provider>
-      </ThemeProvider>
-    </StylesProvider>
+    <Router>
+      <Route path="/" exact component={Home} />
+      <Route path="/auth" component={Auth} />
+      <Route path="/auth/login" component={Login} />
+    </Router>
   );
 }
 export default App;
