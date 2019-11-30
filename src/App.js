@@ -16,21 +16,16 @@ axios.defaults.withCredentials = true
 function App() {
 
   const dispatch = useDispatch()
-  const loggedIn = useSelector(state => state.user.loggedIn)
 
   useEffect(() => {
     axios
       .get('/api/user/info')
       .then((response) => {
-        console.log(response.status)
         if (response.status === 200) {
-          dispatch({ type: "SET_USER", user: { loggedIn: true, ...response.data } })
-          const user = { loggedIn: true, ...response.data }
+          dispatch({ type: "SET_USER", user: response.data})
+          const user = response.data
           console.log(user)
         }
-      })
-      .catch(error => {
-
       })
   })
 

@@ -7,7 +7,7 @@ import { TextInput } from "./LoginInput/TextInput";
 import { theme } from '../../Theme/Theme'
 import { AccountCircle } from '@material-ui/icons/';
 import { Loading } from '../Loading/Loading'
-import { Redirect, Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import md5 from 'md5'
 import axios from 'axios'
@@ -75,9 +75,21 @@ export default function SignUp(props) {
         axios
             .post('/api/login', data)
             .then((response) => {
-                setLoading(false)
                 if (response.status === 200) {
-                    dispatch({ type: "SET_USER", user: { loggedIn: true } })
+                    axios
+                        .get('/api/user/info')
+                        .then((response) => {
+                            if (response.status === 200) {
+                                setLoading(false)
+                                dispatch({ type: "SET_USER", user: response.data })
+                                const user = response.data
+                                console.log(user)
+                            }
+                        })
+                        .catch((error) => {
+                            setLoading(false)
+                            setErrors({ ...errors, error: true })
+                        })
                 }
             })
             .catch(error => {
@@ -110,7 +122,7 @@ export default function SignUp(props) {
                             <Button variant="contained" color="primary" type="submit" disabled={submitting || pristine}>
                                 {'Войти'}
                             </Button>
-                                <Register variant="subtitle2">{'Нет аккаунта? '}<RegisterLink to="/auth/registration">{'Зарегистрируйтесь'}</RegisterLink></Register>
+                            <Register variant="subtitle2">{'Нет аккаунта? '}<RegisterLink to="/auth/registration">{'Зарегистрируйтесь'}</RegisterLink></Register>
                             {
                                 errors.error ?
                                     <InvalidInput color="error">

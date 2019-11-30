@@ -104,7 +104,7 @@ function AuthenticationItems(props) {
         axios
             .post('api/logout')
             .then(response => {
-                dispatch({ type: "SET_USER", user: { loggedIn: false } })
+                dispatch({ type: "SET_USER", user: null })
                 console.log('logOut')
             })
     }

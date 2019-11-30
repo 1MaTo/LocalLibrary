@@ -1,9 +1,7 @@
 const initialState = {
     bookList: [],
     book: null,
-    user: {
-        loggedIn : false
-    },
+    user: null,
 }
 
 export function reducer(state = initialState, action) {
