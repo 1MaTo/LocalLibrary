@@ -5,8 +5,8 @@ import Home from './components/mainPage/Home'
 import { useDispatch } from 'react-redux'
 import { serverUrl } from './config'
 import axios from 'axios'
-import { useSelector } from 'react-redux'
 import Auth from './components/Authentication/Auth'
+import SingUp from './components/Authentication/SingUp'
 
 axios.defaults.baseURL = serverUrl
 axios.defaults.headers.post['Content-Type'] = 'application/JSON';
@@ -22,7 +22,7 @@ function App() {
       .get('/api/user/info')
       .then((response) => {
         if (response.status === 200) {
-          dispatch({ type: "SET_USER", user: response.data})
+          dispatch({ type: "SET_USER", user: response.data })
           const user = response.data
           console.log(user)
         }
@@ -34,6 +34,7 @@ function App() {
       <Route path="/" exact component={Home} />
       <Route path="/auth" component={Auth} />
       <Route path="/auth/login" component={Login} />
+      <Route path="/auth/registration" component={SingUp} />
     </Router>
   );
 }

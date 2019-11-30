@@ -9,17 +9,17 @@ import {
 } from '@material-ui/core';
 import { Visibility, VisibilityOff } from '@material-ui/icons';
 import styled from 'styled-components'
-import { theme } from '../../../Theme/Theme'
 
 const TextInput = styled(Input)`
     .MuiIconButton-root {
+        display: inline-flex;
         &:hover {
             background: transparent;
         }
     }
 `
 
-export function Password({ props, error }) {
+export function Password({ props, error, text='Пароль' }) {
     const [values, setValues] = useState({
         showPassword: false,
     })
@@ -34,7 +34,7 @@ export function Password({ props, error }) {
 
     return (
         <FormControl>
-            <InputLabel>{'Пароль'}</InputLabel>
+            <InputLabel>{text}</InputLabel>
             <TextInput
                 color='primary'
                 name={props.input.name}

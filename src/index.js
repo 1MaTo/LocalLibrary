@@ -20,23 +20,26 @@ const GlobalStyle = createGlobalStyle`
   }
   .MuiFormControl-root {
     display: flex;
-    margin-bottom: 30px;
+    margin: 15px 0px 15px 0px;
   }
-
+  .MuiButton-root {
+    width: fit-content;
+    margin: 5px auto 5px auto;
+  }
 `
 const store = createStore(reducer)
 
 const Index = () => {
-    return (
-        <StylesProvider injectFirst>
-            <ThemeProvider theme={theme}>
-                <Provider store={store}>
-                    <App />
-                    <GlobalStyle theme={theme} />
-                </Provider>
-            </ThemeProvider>
-        </StylesProvider >
-    )
+  return (
+    <StylesProvider injectFirst>
+      <ThemeProvider theme={theme}>
+        <Provider store={store}>
+          <App />
+          <GlobalStyle theme={theme} />
+        </Provider>
+      </ThemeProvider>
+    </StylesProvider >
+  )
 }
 
-ReactDOM.render(<Index/>, document.getElementById('root'));
+ReactDOM.render(<Index />, document.getElementById('root'));

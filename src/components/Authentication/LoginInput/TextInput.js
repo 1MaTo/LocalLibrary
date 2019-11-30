@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
     InputLabel,
     FormControl,
@@ -6,7 +6,7 @@ import {
     FormHelperText
 } from '@material-ui/core';
 
-export function TextInput({ props, error, errorText, label }) {
+export function TextInput({ props, error, errorText, label, variant = 'Input' }) {
 
     return (
         <FormControl>
@@ -18,8 +18,9 @@ export function TextInput({ props, error, errorText, label }) {
                 type={'text'}
                 value={props.input.value}
                 onChange={props.input.onChange}
+                variant={variant}
             />
-            {errorText ? <FormHelperText>{ errorText }</FormHelperText> : null}
+            {error ? <FormHelperText>{error}</FormHelperText> : null}
         </FormControl>
     )
 }

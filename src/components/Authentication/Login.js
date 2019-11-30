@@ -30,7 +30,6 @@ const LoginPage = styled(Container)`
 
 const LoginLabel = styled(Typography)`
     margin: auto;
-    margin-bottom: 30px;
     display: flex;
     align-items: center;
 `
@@ -53,7 +52,7 @@ const RegisterLink = styled(Link)`
     }
 `
 const Register = styled(Typography)`
-        font-size: 0.85em;
+    font-size: 0.85em;
     margin-top: 5px;
     color: ${theme.secondary.main};
     width: fit-content;
