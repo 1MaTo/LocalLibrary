@@ -11,6 +11,8 @@ import AccountCircle from '@material-ui/icons/AccountCircle'
 import { Password } from "./LoginInput/Password";
 import { TextInput } from './LoginInput/TextInput'
 import { Link } from 'react-router-dom'
+import { Avatar } from '@material-ui/core';
+import { FileInput } from './LoginInput/FileInput'
 
 const SingUpPage = styled(Container)`
     width: 100vw;
@@ -63,7 +65,15 @@ const LoginToolTip = styled(Typography)`
     align-self: center;
 `
 
-const Image = styled.div`
+const ImageContainer = styled(Grid)`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`
+
+const Image = styled(Avatar)`
+    width: 150px;
+    height: 150px;
 `
 
 const PassForm = styled(Grid)`
@@ -74,6 +84,8 @@ const PassForm = styled(Grid)`
 export default function SignUp() {
 
     const [loading, setLoading] = useState(false)
+
+    const [image, setImage] = useState(null)
 
     const [errors, setErrors] = useState({
         firstName: false,
@@ -99,10 +111,19 @@ export default function SignUp() {
                             <SingUpIcon color="primary" />{'Регистрация'}
                         </SingUpLabel>
                         <Grid container spacing={2}>
-                            <Grid item xs={12} sm={7}>
-                                <Image>Картинка</Image>
-                            </Grid>
-                            <Grid item xs={12} sm={4}>
+                            <ImageContainer item xs={12} sm={5}>
+                                <Image src={image} />
+                                <Field name='avatar'>
+                                    {props => (
+                                        <FileInput
+                                            formats='.png, .jpg, .jpeg'
+                                            text={'Выбрать аватар'}
+                                            image={setImage}
+                                            {...props.input} />
+                                    )}
+                                </Field>
+                            </ImageContainer>
+                            <Grid item xs={12} sm={6}>
                                 <Field name='firstName'>
                                     {props => (
                                         <TextInput
