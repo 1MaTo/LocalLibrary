@@ -97,12 +97,24 @@ export default function SignUp(props) {
             })
     }
 
+    const validate = (values) => {
+        const errors={}
+        if (!values.email) {
+            errors.firstName = ''
+        }
+        if (!values.password) {
+            errors.password = ''
+        }
+        return errors
+    }
+
     return (
         <LoginPage>
             {loading ? <Loading /> :
                 <Form
                     onSubmit={handleSubmit}
-                    render={({ handleSubmit, reset, submitting, pristine, values }) => (
+                    validate= {values => validate(values)}
+                    render={({ handleSubmit, reset, submitting, pristine, values, valid }) => (
                         <LoginForm onSubmit={handleSubmit}>
                             <LoginLabel variant="h5" color="primary">
                                 <LoginIcon color="primary" />{'ВХОД'}
@@ -118,7 +130,7 @@ export default function SignUp(props) {
                             <Field name='password'>
                                 {props => (<Password props={props} error={errors.error} />)}
                             </Field>
-                            <Button variant="contained" color="primary" type="submit" disabled={submitting || pristine}>
+                            <Button variant="contained" color="primary" type="submit" disabled={!valid}>
                                 {'Войти'}
                             </Button>
                             <Register variant="subtitle2">{'Нет аккаунта? '}<RegisterLink to="/auth/registration">{'Зарегистрируйтесь'}</RegisterLink></Register>

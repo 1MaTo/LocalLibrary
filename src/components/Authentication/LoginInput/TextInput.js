@@ -5,6 +5,14 @@ import {
     Input,
     FormHelperText
 } from '@material-ui/core';
+import styled from 'styled-components'
+import { theme } from '../../../Theme/Theme'
+
+const ErrosMessage = styled(FormHelperText)`
+    position: absolute;
+    top: 45px;
+    color: ${theme.error.main};
+`
 
 export function TextInput({ props, error, errorText, label, variant = 'Input' }) {
 
@@ -20,7 +28,7 @@ export function TextInput({ props, error, errorText, label, variant = 'Input' })
                 onChange={props.input.onChange}
                 variant={variant}
             />
-            {error ? <FormHelperText>{error}</FormHelperText> : null}
+            {props.meta.error && props.meta.touched && <ErrosMessage>{props.meta.error}</ErrosMessage>}
         </FormControl>
     )
 }

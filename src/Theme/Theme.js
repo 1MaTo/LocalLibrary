@@ -31,5 +31,8 @@ export const theme = createMuiTheme({
     },
     secondary: {
         main: '#544759'
+    },
+    error: {
+        main: '#ff2b2b'
     }
 });
