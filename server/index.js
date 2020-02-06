@@ -325,7 +325,7 @@ app.get('/api/book/comments/:id', (req, res) => {
 app.post('/api/add/user', (req, res) => {
     checkEmail(req.body.email).then(
         result => {
-            addImage(req.body.imgData).then(
+            addImage(req.body.avatar).then(
                 result => {
                     let token = md5(req.body.firstName + req.body.email + Date())
                     const query = `

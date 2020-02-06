@@ -7,8 +7,8 @@ const transport = nodemailer.createTransport({
     port: 587,
     secure: false, // upgrade later with STARTTLS
     auth: {
-        user: "matoebisu@gmail.com",
-        pass: pass
+        user: 'matoebisu@gmail.com',
+        pass: pass.password
     }
 }
 );
@@ -46,6 +46,7 @@ exports.sendVerify = function (adress, firstName, tokenUrl) {
                 return true
             },
             error => {
+                console.log("EMAIL ERROR: \n" + error)
                 return false
             })
         .catch(console.error)
