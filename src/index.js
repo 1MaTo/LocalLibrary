@@ -13,6 +13,7 @@ const GlobalStyle = createGlobalStyle`
   a {
     color: inherit;
     text-decoration: none;
+    display: contents;
   }
   body {
     background: ${ props => props.theme.background.main};
@@ -24,7 +25,6 @@ const GlobalStyle = createGlobalStyle`
   }
   .MuiButton-root {
     width: fit-content;
-    margin: 5px auto 5px auto;
   }
 `
 const store = createStore(reducer)

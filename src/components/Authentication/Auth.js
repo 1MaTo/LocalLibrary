@@ -7,6 +7,6 @@ export default function Auth(){
     const user = useSelector( state => state.user)
 
     return(
-        user ? <Redirect to="/"/> : <Redirect to="/auth/login"/>
+        user ? <Redirect to="/"/> : null
     )
 }

@@ -16,10 +16,9 @@ import { FileInput } from './LoginInput/FileInput'
 import { RadioButtonInput } from './LoginInput/RadioButtonInput'
 import md5 from 'md5'
 import axios from 'axios'
+import HeaderMenu from '../menu/HeaderMenu'
 
 const SingUpPage = styled(Container)`
-    width: 100vw;
-    height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -94,6 +93,10 @@ const InputsContainer = styled(Grid)`
     margin-bottom: 10px;
 `
 
+const SingUpButton = styled(Button)`
+    margin: 5px auto 5px auto;
+`
+
 export default function SignUp() {
 
     const [loading, setLoading] = useState(false)
@@ -163,7 +166,9 @@ export default function SignUp() {
     }
 
     return (
-        !success ?
+        <div>
+            <HeaderMenu />
+            {!success ?
             <SingUpPage>
                 {loading ? <Loading /> : <Form
                     onSubmit={handleSubmit}
@@ -236,9 +241,9 @@ export default function SignUp() {
                                     </Grid>
                                 </GridForm>
                             </InputsContainer>
-                            <Button variant="contained" color="primary" type="submit" disabled={!valid}>
+                            <SingUpButton variant="contained" color="primary" type="submit" disabled={!valid}>
                                 {'Зарегистрироваться'}
-                            </Button>
+                            </SingUpButton>
                             <LoginToolTip variant="subtitle2">
                                 {'Уже есть аккаунт? '}
                                 <LoginLink to="/auth/login">
@@ -247,6 +252,7 @@ export default function SignUp() {
                             </LoginToolTip>
                         </ SingUpForm>
                     )} />}
-            </SingUpPage> : RedirectToLogin()
+            </SingUpPage> : RedirectToLogin()}
+        </div>
     );
 }
