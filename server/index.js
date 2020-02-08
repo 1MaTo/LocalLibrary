@@ -191,7 +191,7 @@ app.get('/api/books/*', (req, res) => {
         "Books".tags,
         "Books".amount,
         "Books"."lastUpdate",
-        "Images".data, "Images".type,
+        encode("Images".data, 'base64') as data, "Images".type,
         (select count ("Ratings".rate) filter (where "Ratings".rate > 0) as likes from "Ratings" where "Ratings"."objectId" = "Books".id),
         (select count ("Ratings".rate) filter (where "Ratings".rate < 0) as dislikes from "Ratings" where "Ratings"."objectId" = "Books".id),
         (select count(id) as "commentsAmount" from "Comments" where "Comments"."bookId" = "Books".id)
@@ -581,7 +581,6 @@ app.post('/api/add/book', (req, res) => {
             type: req.body.imgData.slice(req.body.imgData.indexOf('/') + 1, req.body.imgData.indexOf(';')),
             data: req.body.imgData.slice(req.body.imgData.indexOf(',') + 1)
         }
-
     if (!checkData(req.body)) {
 
         res.status(406).send('Недопустимые данные для добавления книги')
@@ -591,7 +590,7 @@ app.post('/api/add/book', (req, res) => {
             res.status(406).send('Изображение должно быть одного из следуюших форматов: jpg, jpeg, png')
         } else {
 
-            const imgQuery = `INSERT INTO "Images"(type, data) VALUES ('${img.type}', '${img.data}') RETURNING id;`
+            const imgQuery = `INSERT INTO "Images"(type, data) VALUES ('${img.type}', decode('${img.data}', 'base64')) RETURNING id;`
             pg.query(imgQuery, (err, response) => {
                 if (err != null) {
 
@@ -826,7 +825,7 @@ function addImage(imgData) {
             reject('Bad image type')
         } else {
 
-            const imgQuery = `INSERT INTO "Images"(type, data) VALUES ('${img.type}', '${img.data}') RETURNING id;`
+            const imgQuery = `INSERT INTO "Images"(type, data) VALUES ('${img.type}', decode('${img.data}', 'base64')) RETURNING id;`
             pg.query(imgQuery, (err, response) => {
                 if (err != null) {
                     reject('Could not add image in database')
