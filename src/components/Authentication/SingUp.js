@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { Form, Field } from 'react-final-form'
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
@@ -48,13 +48,8 @@ const SingUpIcon = styled(AccountCircle)`
     margin-right: 10px;
 `
 
-const InvalidInput = styled(Typography)`
-    margin-top: 20px;
-    text-align: center;
-`
-
 const LoginLink = styled(Link)`
-    color: ${theme.primary.main};
+    color: ${theme.palette.primary.main};
     &:hover {
         text-decoration: underline;
     }
@@ -62,7 +57,7 @@ const LoginLink = styled(Link)`
 const LoginToolTip = styled(Typography)`
     font-size: 0.85em;
     margin-top: 5px;
-    color: ${theme.secondary.main};
+    color: ${theme.palette.secondary.main};
     width: fit-content;
     align-self: center;
 `

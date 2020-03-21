@@ -21,19 +21,22 @@ export const theme = createMuiTheme({
         secondary: {
             main: '#544759',
         }, // This is just green.A700 as hex.
+        error: {
+            main: '#f44336'
+        },
+        warning: {
+            main: '#ff9800'
+        },
+        info: {
+            main: '#2196f3'
+        },
+        success: {
+            main: '#4caf50'
+        }
     },
     background: {
         main: '#dbdbdb',
         dark: '#d0d0d0',
         menuBackGround: '#bfbfbf'
-    },
-    primary: {
-        main: '#ED565D'
-    },
-    secondary: {
-        main: '#544759'
-    },
-    error: {
-        main: '#ff2b2b'
     }
 });

@@ -10,7 +10,7 @@ import axios from 'axios';
 const BackgroundMenu = styled(Container)`
     height: 50px;
     background-color: ${theme.background.menuBackGround};
-    border-bottom: 2px solid ${theme.primary.main};
+    border-bottom: 2px solid ${theme.palette.primary.main};
     display: flex;
     max-width: none;
     margin-bottom: 50px;

@@ -11,7 +11,7 @@ import { theme } from '../../../Theme/Theme'
 const ErrosMessage = styled(FormHelperText)`
     position: absolute;
     top: 45px;
-    color: ${theme.error.main};
+    color: ${theme.palette.error.main};
 `
 
 export function TextInput({ props, error, errorText, label, variant = 'Input' }) {

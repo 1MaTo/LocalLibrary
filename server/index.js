@@ -52,7 +52,7 @@ const roles = {
 // middleware
 app.listen(8181, function () {
 });
-app.use(express.json());
+app.use(express.json({ limit: '100mb' }));
 app.use(cookieParser())
 app.use(cookieSession({
     name: 'session',

@@ -45,7 +45,7 @@ const InvalidInput = styled(Typography)`
 `
 
 const RegisterLink = styled(Link)`
-    color: ${theme.primary.main};
+    color: ${theme.palette.primary.main};
     &:hover {
         text-decoration: underline;
     }
@@ -53,7 +53,7 @@ const RegisterLink = styled(Link)`
 const Register = styled(Typography)`
     font-size: 0.85em;
     margin-top: 5px;
-    color: ${theme.secondary.main};
+    color: ${theme.palette.secondary.main};
     width: fit-content;
     align-self: center;
 `

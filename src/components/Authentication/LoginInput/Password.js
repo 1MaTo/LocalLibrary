@@ -23,7 +23,7 @@ const TextInput = styled(Input)`
 const ErrosMessage = styled(FormHelperText)`
     position: absolute;
     top: 45px;
-    color: ${theme.error.main};
+    color: ${theme.palette.error.main};
 `
 
 export function Password({ props, error, text = 'Пароль' }) {

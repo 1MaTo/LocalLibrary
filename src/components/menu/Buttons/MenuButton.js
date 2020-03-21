@@ -1,7 +1,6 @@
 import React from 'react';
-import { Container, Typography, Button } from '@material-ui/core';
+import { Typography, Button } from '@material-ui/core';
 import styled from 'styled-components'
-import { theme } from '../../../Theme/Theme'
 import Icons from '@material-ui/core/Icon'
 import { Link } from "react-router-dom";
 
