@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { Button, Typography, Container, Avatar } from '@material-ui/core';
 import Icons from '@material-ui/core/Icon'
@@ -79,20 +79,18 @@ export default function BookCard(props) {
 
     props = data
 
-    const getUsedBooks = () => {
+    const [usedBooks, setUsedBooks] = useState(null)
+
+    useEffect(() => {
         axios
             .get(`api/book/users/reading/${props.id}`)
             .then((response) => {
                 setUsedBooks(response.data.length)
             })
-    }
-
-    const [usedBooks, setUsedBooks] = useState(null)
-
-    getUsedBooks()
+    }, [])
 
     const [available, setAvailable] = useState(props.amount > usedBooks ? true : false)
-    
+
 
     return (
         <Background>
@@ -117,7 +115,7 @@ export default function BookCard(props) {
                         </Icon>
                     </RateButton>
                 </Rate>
-                <Availability style={{color: available ? "green" : "red"}}>
+                <Availability style={{ color: available ? "green" : "red" }}>
                     {`${usedBooks}/${props.amount}`}
                 </Availability>
                 <MoreButton>

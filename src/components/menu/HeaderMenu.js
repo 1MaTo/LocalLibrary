@@ -35,46 +35,78 @@ export default function Menu() {
 
     const handleLogOut = () => {
         axios
-        .post('api/logout')
-        .then(response => {
-            dispatch({ type: "SET_USER", user: null })
-            console.log('logOut')
-        })
-        dispatch({ type: "SET_USER", user: null })
+            .post('api/logout')
+            .then(response => {
+                dispatch({ type: "SET_USER", user: null })
+                dispatch({ type: "SET_LOGIN", isLogin: false })
+                console.log('logOut')
+            })
+    }
+
+    const Home = () => {
+        return (
+            <MenuButton
+                path={'/'}
+                icon={'home'}
+                text={'Главная'}
+            />
+        )
+    }
+
+    const SingUp = () => {
+        return (
+            <MenuButton
+                path={'/auth/registration'}
+                icon={'person_add'}
+                text={'Создать аккаунт'}
+            />
+        )
+    }
+
+    const LogIn = () => {
+        return (
+            <MenuButton
+                path={'/auth/login'}
+                icon={'account_circle'}
+                text={'Вход'}
+            />
+        )
+    }
+
+    const LogOut = () => {
+        return (
+            <MenuButton
+                path={'/auth/login'}
+                icon={'exit_to_app'}
+                text={'Выйти'}
+                handleAction={handleLogOut}
+            />
+        )
+    }
+
+    const AccManagement = () => {
+        return (
+            <MenuButton
+                path={'/lk'}
+                icon={'settings'}
+                text={'Личный кабинет'} />
+        )
     }
 
     return (
         <BackgroundMenu>
-
             <LeftMenuBar>
-                <MenuButton
-                    path={'/'}
-                    icon={'home'}
-                    text={'Главная'} />
+                <Home />
             </LeftMenuBar>
             {user ?
                 <RightMenuBar>
-                    <MenuButton
-                        path={'/auth/notification'}
-                        icon={'notifications'}
-                        text={'Уведомления'} />
-                    <MenuButton
-                        path={'/auth/login'}
-                        icon={'exit_to_app'}
-                        text={'Выйти'} 
-                        handleAction={handleLogOut}/>
+                    <AccManagement />
+                    <LogOut />
                 </RightMenuBar>
                 :
                 <RightMenuBar>
-
-                    <MenuButton
-                        path={'/auth/login'}
-                        icon={'account_circle'}
-                        text={'Вход'} />
-                    <MenuButton
-                        path={'/auth/registration'}
-                        icon={'person_add'}
-                        text={'Создать аккаунт'} />
+                    <LogIn />
+                    <SingUp />
                 </RightMenuBar>
             }
 

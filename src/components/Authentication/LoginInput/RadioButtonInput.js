@@ -1,34 +1,48 @@
 import React from 'react';
 import {
-    FormControl,
     FormLabel,
-    RadioGroup,
     FormControlLabel,
     Radio
 } from '@material-ui/core';
 import styled from 'styled-components'
+import { Field } from 'react-final-form'
 
-const RadioInputForm = styled(FormControl)`
-    justify-content: center;
+const ButtonList = styled.div`
+    display: flex;
+    flex-direction: column;
+    margin-top: 15px;
 `
 
-export function RadioButtonInput({ props, values }) {
+const RadioGroup = styled.div`
+    margin: auto;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+`
+
+export function RadioButtonInput({ values, name }) {
+
+    const array = values.map(element => {
+        return (
+            <Field key={element.value} name={name.value} type="radio" value={element.value}>
+                {props => (
+                    <FormControlLabel
+                        key={props.input.value}
+                        value={props.input.value}
+                        control={<Radio />}
+                        label={element.label}
+                        checked={props.input.checked}
+                        onChange={props.input.onChange} />
+                )}
+            </Field>)
+    })
 
     return (
-        <RadioInputForm>
-            <FormLabel component={"legend"}>Пол</FormLabel>
-            <RadioGroup name={props.input.name} value={props.input.value} onChange={props.input.onChange}>
-                <ValueList values={values}/>
-            </RadioGroup>
-        </RadioInputForm>
-    )
-}
-
-function ValueList({ values }) {
-    const valuesArr = Array.from(values)
-    return (
-        valuesArr.map((value) => {
-            return (<FormControlLabel key={value} value={value} control={<Radio />} label={value} />)
-        })
+        <RadioGroup>
+            <FormLabel component="legend">{name.label}</FormLabel>
+            <ButtonList>
+                {array}
+            </ButtonList>
+        </RadioGroup>
     )
 }

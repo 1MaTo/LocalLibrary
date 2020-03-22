@@ -59,11 +59,10 @@ app.use(cookieSession({
     id: 0,
     keys: ["key1", "key2"],
 
-    maxAge: 180000
+    maxAge: 43200000
 }))
 
 app.all('*', (request, response, next) => {
-    console.log("Request to " + request.originalUrl)
     response.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000')
     response.setHeader('Access-Control-Request-Methods', 'POST, GET, OPTIONS')
     response.setHeader('Access-Control-Allow-Headers', 'Content-Type')
@@ -81,6 +80,14 @@ app.options('*', (request, response, next) => {
     response.status(200).send()
 })
 
+app.all('*', (request, response, next) => {
+    const date = new Date()
+    const hh = date.getHours() < 10 ? '0' + date.getHours() : date.getHours()
+    const mm = date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()
+    const ss = date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds()
+    console.log(`[${hh}:${mm}:${ss}] Request to ${request.originalUrl}`)
+    next()
+})
 
 // login
 app.post('/api/login', (req, res) => {
@@ -214,7 +221,20 @@ app.get('/api/books/*', (req, res) => {
             res.status(404).send('Bad request, database error')
             //console.log(err)
         } else {
-            res.status(200).send(JSON.stringify(response.rows));
+            const data = response.rows.map(book => {
+                return ({
+                    id : book.id,
+                    name : book.name,
+                    author : book.author,
+                    releaseYear : book.releaseYear,
+                    about : book.about,
+                    tags : book.tags,
+                    amount : book.amount,
+                    lastUpdate : book.lastUpdate,
+                    avatar: `data:image/${book.type};base64, ${book.data}`
+                })
+            })
+            res.status(200).send(JSON.stringify(data));
             //console.log(response.rows)
         }
     });
@@ -744,13 +764,13 @@ app.post('*', (req, res) => {
 
 function getImage(id) {
     return new Promise((resolve, reject) => {
-        const query = `select type, data from "Images" where id = ${id}`
+        const query = `select type, encode(data, 'base64') as data from "Images" where id = ${id}`
         pg.query(query, (err, response) => {
             if (err) {
                 reject(err)
             } else {
                 const data = JSON.parse(JSON.stringify(response.rows[0].data))
-                resolve(response.rowCount ? {type: response.rows[0].type, data: data.data} : null)
+                resolve(response.rowCount ? `data:image/${response.rows[0].type};base64, ${data}` : null)
             }
         })
     })
