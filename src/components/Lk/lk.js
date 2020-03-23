@@ -17,7 +17,7 @@ const Background = styled.div`
 const TabArea = styled(Container)`
     display: flex;
     background: ${theme.palette.background.dark};
-    margin: 20px;
+    margin: 20px auto 20px auto;
     padding: 0px;
     height: 80vh;
 `
@@ -25,6 +25,10 @@ const TabArea = styled(Container)`
 const StyledTabs = styled(Tabs)`
     border-right: 1px solid ${theme.palette.divider};
     background: ${theme.palette.background.dark};
+`
+
+const StyledTabPanel = styled(TabPanel)`
+    overflow: auto;
 `
 
 function TabPanel(props) {
@@ -77,15 +81,15 @@ export default function Lk() {
                     {permission === 'admin' ? <Tab label="Пользователи" {...a11yProps(1)} /> : null}
                     {permission === 'admin' ? <Tab label="Книги" {...a11yProps(2)} /> : null}
                 </StyledTabs>
-                <TabPanel value={value} index={0}>
+                <StyledTabPanel value={value} index={0}>
                     <Update />
-                </TabPanel>
-                <TabPanel value={value} index={1}>
+                </StyledTabPanel>
+                <StyledTabPanel value={value} index={1}>
 
-                </TabPanel>
-                <TabPanel value={value} index={2}>
+                </StyledTabPanel>
+                <StyledTabPanel value={value} index={2}>
 
-                </TabPanel>
+                </StyledTabPanel>
             </TabArea>
         </Background>
     )

@@ -18,6 +18,8 @@ import md5 from 'md5'
 import axios from 'axios'
 import Message from '../../ActionsMessages/message'
 import { useSelector } from 'react-redux'
+import { useSnackbar } from 'notistack'
+import { useUpdate } from '../../../store/updateStore'
 
 const SingUpPage = styled(Container)`
     display: flex;
@@ -72,30 +74,40 @@ export default function Update() {
 
     const [loading, setLoading] = useState(false)
 
-    const [image, setImage] = useState(null)
-
-    console.log(user)
+    const [image, setImage] = useState(user.avatar)
 
     const [message, setMessage] = useState(null)
 
+    const updateUser = useUpdate('USER')
+
+    const { enqueueSnackbar } = useSnackbar();
+
+    const handleSnackbar = (message, variant) => {
+        enqueueSnackbar(message, { variant });
+    }
 
     const handleSubmit = data => {
-        data.password = md5(data.password)
+        var parsedData = {
+            firstName: data.firstName,
+            secondName: data.secondName,
+            imgData: data.avatar,
+            gender: data.gender
+        }
+        if (data.oldPassword) {
+            parsedData.password = md5(data.newPassword)
+        }
         setLoading(true)
         axios
-            .post('api/add/user', data)
+            .post(`api/update/user/${user.id}`, parsedData)
             .then((response) => {
                 if (response.status === 200) {
+                    updateUser()
                     setLoading(false)
                 }
             })
             .catch(error => {
+                handleSnackbar('Ошибка при обновлении данных', 'error')
                 setLoading(false)
-                setMessage({
-                    text: 'Пользователь с таким email уже существует',
-                    type: 'error'
-                })
-                setTimeout(() => { setMessage(null) }, 5000);
             })
     }
 
@@ -119,10 +131,12 @@ export default function Update() {
         if (!values.gender) {
             errors.gender = ''
         }
-        if (!values.password) {
-            errors.password = ''
-        } else if (values.confirmPassword !== values.password) {
-            errors.confirmPassword = 'Пароли должны совпадать'
+        if (values.oldPassword) {
+            if (!values.newPassword) {
+                errors.newPassword = ''
+            } else if (values.confirmNewPassword !== values.newPassword) {
+                errors.confirmNewPassword = 'Пароли должны совпадать'
+            }
         }
         return errors
     }
@@ -141,7 +155,7 @@ export default function Update() {
                                     <Image src={image}>
                                         {getNameAvatar(values.firstName, values.secondName)}
                                     </Image>
-                                    <Field name='avatar' defaultValue={null}>
+                                    <Field name='avatar' defaultValue={image}>
                                         {props => (
                                             <FileInput
                                                 formats='.png, .jpg, .jpeg'
@@ -175,6 +189,7 @@ export default function Update() {
                                 <Field name='email'>
                                     {props => (
                                         <TextInput
+                                            disabled={true}
                                             props={props}
                                             label={'Email'}
                                         />)}
@@ -196,13 +211,18 @@ export default function Update() {
                             </GridForm>
                             <GridForm container item xs={12} sm={6}>
                                 <Grid item xs={12}>
-                                    <Field name='password'>
-                                        {(props, meta) => (<Password props={props} />)}
+                                    <Field name='oldPassword'>
+                                        {props => (<Password props={props} />)}
                                     </Field>
                                 </Grid>
                                 <Grid item xs={12}>
-                                    <Field name='confirmPassword'>
-                                        {props => (<Password props={props} text={'Повторите пароль'} />)}
+                                    <Field name='newPassword'>
+                                        {props => (<Password checkPass={user.password} disabled={values.oldPassword ? values.oldPassword : true} props={props} text={'Введите новый пароль'} />)}
+                                    </Field>
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <Field name='confirmNewPassword'>
+                                        {props => (<Password checkPass={user.password} disabled={values.oldPassword ? values.oldPassword : true} props={props} text={'Повторите новый пароль'} />)}
                                     </Field>
                                 </Grid>
                             </GridForm>

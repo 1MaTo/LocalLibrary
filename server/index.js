@@ -223,14 +223,14 @@ app.get('/api/books/*', (req, res) => {
         } else {
             const data = response.rows.map(book => {
                 return ({
-                    id : book.id,
-                    name : book.name,
-                    author : book.author,
-                    releaseYear : book.releaseYear,
-                    about : book.about,
-                    tags : book.tags,
-                    amount : book.amount,
-                    lastUpdate : book.lastUpdate,
+                    id: book.id,
+                    name: book.name,
+                    author: book.author,
+                    releaseYear: book.releaseYear,
+                    about: book.about,
+                    tags: book.tags,
+                    amount: book.amount,
+                    lastUpdate: book.lastUpdate,
                     avatar: `data:image/${book.type};base64, ${book.data}`
                 })
             })
@@ -517,7 +517,7 @@ app.post('/api/update/user/:id', (req, res) => {
                             res.status(400).send('Пользователь не обновлен')
                             console.log(err)
                         } else {
-                            log(actions.UPDATE, 'user', req.params.userId, req.session.id)
+                            log(actions.UPDATE, 'user', req.params.id, req.session.id)
                             res.status(200).send("Данные обновлены");
                         }
                     });
@@ -770,7 +770,7 @@ function getImage(id) {
                 reject(err)
             } else {
                 const data = JSON.parse(JSON.stringify(response.rows[0].data))
-                resolve(response.rowCount ? `data:image/${response.rows[0].type};base64, ${data}` : null)
+                resolve(response.rowCount && data !== 'null' ? `data:image/${response.rows[0].type};base64, ${data}` : null)
             }
         })
     })
@@ -801,17 +801,20 @@ function checkMass(mass) {
 function updateImage(imgData, id, type) {
     return new Promise((resolve, reject) => {
         if (imgData !== undefined) {
-            const allowedTypes = ['png', 'jpg', 'jpeg']
-            const img = {
-                type: imgData.slice(imgData.indexOf('/') + 1, imgData.indexOf(';')),
-                data: imgData.slice(imgData.indexOf(',') + 1)
+            const allowedTypes = ['png', 'jpg', 'jpeg', null]
+            var img = { type: null, data: null }
+            if (imgData !== null) {
+                img = {
+                    type: imgData.slice(imgData.indexOf('/') + 1, imgData.indexOf(';')),
+                    data: imgData.slice(imgData.indexOf(',') + 1)
+                }
             }
             if (allowedTypes.indexOf(img.type) === -1) {
                 reject('Bad image type')
             } else {
                 const imgQuery = `UPDATE "Images"  
                                     SET "type"='${img.type}', 
-                                    "data"='${img.data}' 
+                                    "data"= decode('${img.data}', 'base64')
                                     WHERE id = (select 
                                         ${type === 'book' ? `"image" from "Books"` : `"avatar" from "Users"`} 
                                         where id = ${id});`

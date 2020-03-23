@@ -19,8 +19,7 @@ const Background = styled(Button)`
 
 const Icon = styled(Icons)`
     font-size: 1.2rem;
-    margin-right: 3px;
-    margin-bottom: 1.8px;
+    margin-right: 5px;
     @media (max-width: 700px){
         font-size: 1.5rem;
         margin-right: 0px;

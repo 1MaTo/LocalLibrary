@@ -10,6 +10,7 @@ import {
 import { Visibility, VisibilityOff } from '@material-ui/icons';
 import styled from 'styled-components'
 import { theme } from '../../../Theme/Theme'
+import md5 from 'md5'
 
 const TextInput = styled(Input)`
     .MuiIconButton-root {
@@ -23,10 +24,10 @@ const TextInput = styled(Input)`
 const ErrosMessage = styled(FormHelperText)`
     position: absolute;
     top: 45px;
-    color: ${theme.palette.error.main};
+    color: ${theme.palette.error};
 `
 
-export function Password({ props, error, text = 'Пароль' }) {
+export function Password({ props, error, text = 'Пароль', disabled = false, checkPass }) {
     const [values, setValues] = useState({
         showPassword: false,
     })
@@ -41,8 +42,9 @@ export function Password({ props, error, text = 'Пароль' }) {
 
     return (
         <FormControl>
-            <InputLabel >{text}</InputLabel>
+            <InputLabel>{text}</InputLabel>
             <TextInput
+                disabled={disabled ? md5(disabled) !== checkPass : false}
                 onFocus={() => {
                     props.input.onFocus()
                     props.input.onBlur()

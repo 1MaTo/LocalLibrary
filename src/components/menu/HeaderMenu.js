@@ -6,6 +6,7 @@ import MenuButton from './Buttons/MenuButton'
 import { useSelector } from 'react-redux'
 import { useDispatch } from 'react-redux'
 import axios from 'axios';
+import UserMenu from './Buttons/UserMenu'
 
 const BackgroundMenu = styled(Container)`
     height: 50px;
@@ -29,19 +30,7 @@ const RightMenuBar = styled(Container)`
 
 export default function Menu() {
 
-    const dispatch = useDispatch()
-
     const user = useSelector(state => state.user)
-
-    const handleLogOut = () => {
-        axios
-            .post('api/logout')
-            .then(response => {
-                dispatch({ type: "SET_USER", user: null })
-                dispatch({ type: "SET_LOGIN", isLogin: false })
-                console.log('logOut')
-            })
-    }
 
     const Home = () => {
         return (
@@ -73,26 +62,6 @@ export default function Menu() {
         )
     }
 
-    const LogOut = () => {
-        return (
-            <MenuButton
-                path={'/auth/login'}
-                icon={'exit_to_app'}
-                text={'Выйти'}
-                handleAction={handleLogOut}
-            />
-        )
-    }
-
-    const AccManagement = () => {
-        return (
-            <MenuButton
-                path={'/lk'}
-                icon={'settings'}
-                text={'Личный кабинет'} />
-        )
-    }
-
     return (
         <BackgroundMenu>
             <LeftMenuBar>
@@ -100,8 +69,7 @@ export default function Menu() {
             </LeftMenuBar>
             {user ?
                 <RightMenuBar>
-                    <AccManagement />
-                    <LogOut />
+                    <UserMenu/>
                 </RightMenuBar>
                 :
                 <RightMenuBar>

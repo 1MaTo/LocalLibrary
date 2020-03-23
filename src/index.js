@@ -8,6 +8,7 @@ import { ThemeProvider } from '@material-ui/styles';
 import { StylesProvider } from '@material-ui/styles';
 import { theme } from './Theme/Theme'
 import { createGlobalStyle } from "styled-components"
+import { SnackbarProvider } from 'notistack';
 
 const GlobalStyle = createGlobalStyle`
   a {
@@ -29,13 +30,26 @@ const GlobalStyle = createGlobalStyle`
 `
 const store = createStore(reducer)
 
+const snackBarOption = {
+  anchorOrigin: {
+    vertical: 'bottom',
+    horizontal: 'right',
+  },
+  autoHideDuration: 3000,
+}
+
 const Index = () => {
   return (
     <StylesProvider injectFirst>
       <ThemeProvider theme={theme}>
         <Provider store={store}>
-          <App />
-          <GlobalStyle theme={theme} />
+          <SnackbarProvider
+            anchorOrigin={snackBarOption.anchorOrigin}
+            autoHideDuration={snackBarOption.autoHideDuration}
+            maxSnack={3}>
+            <App />
+            <GlobalStyle theme={theme} />
+          </SnackbarProvider>
         </Provider>
       </ThemeProvider>
     </StylesProvider >
