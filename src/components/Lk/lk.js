@@ -9,6 +9,7 @@ import Container from '@material-ui/core/Container'
 import Box from '@material-ui/core/Box';
 import { theme } from '../../Theme/Theme'
 import Update from './account/update'
+import UserList from './lists/userList'
 
 
 const Background = styled.div`
@@ -85,7 +86,7 @@ export default function Lk() {
                     <Update />
                 </StyledTabPanel>
                 <StyledTabPanel value={value} index={1}>
-
+                    <UserList />
                 </StyledTabPanel>
                 <StyledTabPanel value={value} index={2}>
 

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Route, Redirect } from "react-router-dom"
 import Login from './components/Authentication/Login'
 import Home from './components/mainPage/Home'
@@ -8,6 +8,7 @@ import axios from 'axios'
 import Auth from './components/Authentication/Auth'
 import SingUp from './components/Authentication/SingUp'
 import Lk from './components/Lk/lk'
+import { Loading } from './components/Loading/Loading'
 
 axios.defaults.baseURL = serverUrl
 axios.defaults.headers.post['Content-Type'] = 'application/JSON';
@@ -18,6 +19,7 @@ function App() {
 
   const dispatch = useDispatch()
   const isLogin = useSelector(state => state.isLogin)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     axios
@@ -26,7 +28,11 @@ function App() {
         if (response.status === 200) {
           dispatch({ type: "SET_USER", user: response.data })
           dispatch({ type: "SET_LOGIN", isLogin: true })
+          setLoading(false)
         }
+      })
+      .catch( err => {
+        setLoading(false)
       })
   }, [isLogin])
 
@@ -50,15 +56,16 @@ function App() {
   }
 
   return (
-    <Router>
-      <Route path="/" exact component={Home} />
-      <Route path="/auth" component={Auth} />
-      <Route path="/auth/login" component={Login} />
-      <Route path="/auth/registration" component={SingUp} />
-      <PrivateRoute path="/lk">
-        <Lk />
-      </PrivateRoute>
-    </Router>
+    loading ? <Loading /> :
+      <Router>
+        <Route path="/" exact component={Home} />
+        <Route path="/auth" component={Auth} />
+        <Route path="/auth/login" component={Login} />
+        <Route path="/auth/registration" component={SingUp} />
+        <PrivateRoute path="/lk">
+          <Lk />
+        </PrivateRoute>
+      </Router>
   );
 }
 export default App;

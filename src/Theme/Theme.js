@@ -36,7 +36,8 @@ export const theme = createMuiTheme({
         background: {
             main: '#dbdbdb',
             dark: '#c5c5c5',
-            dark2: '#b1b1b1' 
+            dark2: '#ffffff',
+            highlight: '#b7b7b7'
         }
     },
     background: {

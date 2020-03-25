@@ -45,8 +45,9 @@ const actions = {
 const roles = {
     UNCONFIRMED: 'unconfirmed',
     USER: 'user',
-    ADMIN: 'administrator',
+    ADMIN: 'admin',
     MODERATOR: 'moderator',
+    BANNED: 'banned'
 }
 
 // middleware
@@ -474,8 +475,6 @@ app.get('/api/user/info', (req, res) => {
         gender
     from "Users"
     where id = ${req.session.id}`
-
-    console.log(req.session.id)
     pg.query(query, (err, response) => {
         if (err != null) {
             console.log(err)
@@ -491,6 +490,40 @@ app.get('/api/user/info', (req, res) => {
                 .finally(() => {
                     res.status(200).send(JSON.stringify(response.rows[0]))
                 })
+        }
+    })
+})
+
+//Get userList 
+app.get('/api/users', (req, res) => {
+    const query = `
+    select 
+        id, 
+        "firstName", 
+        "secondName", 
+        "registerDate", 
+        "email", 
+        "role",
+        "avatar"
+    from "Users"`
+    pg.query(query, (err, response) => {
+        if (err != null) {
+            console.log(err)
+            res.status(404).send("Ошибка при получении списка пользователей")
+        } else {
+            const collectInfo = response.rows.map(user => {
+                return getImage(user.avatar)
+                    .then((result) => {
+                        return user.avatar = result
+                    })
+                    .catch(err => {
+                        console.log(err)
+                        res.status(404).send("Ошибка при получении аватара пользователя")
+                    })
+            })
+            Promise.all(collectInfo).then((result) => {
+                res.status(200).send(response.rows)
+            })
         }
     })
 })

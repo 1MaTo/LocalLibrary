@@ -4,9 +4,8 @@ import styled from 'styled-components'
 import Icons from '@material-ui/core/Icon'
 import { useSelector, useDispatch } from 'react-redux'
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
-import { Link } from "react-router-dom";
-import axios from 'axios'
 import { theme } from '../../../Theme/Theme'
+import { LogOut, Profile } from './ActionButtons'
 
 
 const Background = styled(Button)`
@@ -19,11 +18,6 @@ const Background = styled(Button)`
     text-transform: unset;
     margin: unset;
     border-radius: unset;
-`
-
-const Icon = styled(Icons)`
-    font-size: 1.2rem;
-    margin-right: 5px;
 `
 
 const UserAvatar = styled(Avatar)`
@@ -40,25 +34,11 @@ const Text = styled(Typography)`
     }
 `
 
-const ButtonText = styled(Typography)`
-    text-transform: none;
-`
-
 const MenuList = styled(Paper)`
     display: flex;
     flex-direction: column;
     background: ${theme.palette.background.dark};
 
-`
-
-const ItemButton = styled(Button)`
-    &&{
-        color: black;
-        width: auto;
-        border-radius: unset;
-        justify-content: flex-start;
-        padding: 15px 25px 15px 25px;
-    }
 `
 
 export default function UserMenu() {
@@ -82,49 +62,6 @@ export default function UserMenu() {
     const id = open ? 'simple-popover' : undefined;
 
     const user = useSelector(state => state.user)
-
-    const dispatch = useDispatch()
-
-    const handleLogOut = () => {
-        axios
-            .post('api/logout')
-            .then(response => {
-                dispatch({ type: "SET_USER", user: null })
-                dispatch({ type: "SET_LOGIN", isLogin: false })
-                console.log('logOut')
-            })
-    }
-
-    const MenuButton = ({ icon, text, action, path }) => {
-        return (
-            <Link to={path ? path : null}>
-                <ItemButton onClick={action ? action : null}>
-                    <Icon>{icon}</Icon>
-                    <ButtonText>{text}</ButtonText>
-                </ItemButton >
-            </Link>
-        )
-    }
-
-    const Profile = () => {
-        return (
-            <MenuButton
-                path={'/lk'}
-                text={'Профиль'}
-                icon={'settings'} />
-        )
-    }
-
-    const LogOut = () => {
-        return (
-            <MenuButton
-                path={'/auth/login'}
-                icon={'exit_to_app'}
-                text={'Выйти'}
-                action={handleLogOut}
-            />
-        )
-    }
 
     return (
         <div>

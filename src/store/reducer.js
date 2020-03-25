@@ -3,6 +3,7 @@ const initialState = {
     book: null,
     user: null,
     isLogin: false,
+    userList: [],
 }
 
 export function reducer(state = initialState, action) {
@@ -31,6 +32,11 @@ export function reducer(state = initialState, action) {
             return {
                 ...state,
                 isLogin: action.isLogin
+            }
+        case "SET_USERLIST":
+            return {
+                ...state,
+                userList: action.userList
             }
         default:
             return state
