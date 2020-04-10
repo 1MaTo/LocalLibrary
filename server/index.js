@@ -50,6 +50,7 @@ const roles = {
     BANNED: 'banned'
 }
 
+
 // middleware
 app.listen(8181, function () {
 });
@@ -90,6 +91,8 @@ app.all('*', (request, response, next) => {
     next()
 })
 
+var login = false
+
 // login
 app.post('/api/login', (req, res) => {
     checkLoginData(req.body.email, req.body.password)
@@ -97,16 +100,15 @@ app.post('/api/login', (req, res) => {
             result => {
                 req.session.id = result
                 log(actions.LOGIN, 'user', result, result)
+                login = true
                 res.status(200).send('successful logged')
             },
             error => {
-                console.log(error)
                 res.status(404).send('user not found')
             }
         )
         .catch(
             error => {
-                console.log(error)
                 res.status(404).send('user not found')
             }
         )
@@ -148,6 +150,16 @@ app.get('/api/resendMail/:id', (req, res) => {
     })
 })
 
+//Check login
+/* app.use('/api/*', (req, res, next) => {
+    if (login) {
+        login = false
+        next()
+    } else {
+        res.status(404).send('you are not logged, please login')
+    }
+}); */
+
 // get booklist
 app.use('/api/books/', (req, res, next) => {
     console.log('searching books')
@@ -163,7 +175,7 @@ app.use('/api/books/', (req, res, next) => {
 })
 app.use('/api/books/*order/:order*', (req, res, next) => {
     req.data.order = null
-    req.data.order = order[req.params.order]
+    req.data.order = req.params.order
     next()
 })
 app.use('/api/books/*tags/:tags*', (req, res, next) => {
@@ -219,8 +231,8 @@ app.get('/api/books/*', (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     pg.query(query, (err, response) => {
         if (err != null) {
-            res.status(404).send('Bad request, database error')
             //console.log(err)
+            res.status(404).send('Bad request, database error')
         } else {
             const data = response.rows.map(book => {
                 return ({
@@ -880,10 +892,10 @@ function addImage(imgData) {
         if (allowedTypes.indexOf(img.type) === -1 && img.type !== null) {
             reject('Bad image type')
         } else {
-
             const imgQuery = `INSERT INTO "Images"(type, data) VALUES ('${img.type}', decode('${img.data}', 'base64')) RETURNING id;`
             pg.query(imgQuery, (err, response) => {
                 if (err != null) {
+                    console.log(err)
                     reject('Could not add image in database')
                 } else {
                     resolve(response.rows[0].id)
@@ -960,8 +972,8 @@ function checkLoginData(email, password) {
                 reject('Data base error')
             } else {
                 if (response.rowCount !== 0) {
-                    if (response.rows[0].role === roles.UNCONFIRMED) {
-                        reject('Your email adress not confirmed yet')
+                    if ((response.rows[0].role === roles.UNCONFIRMED) || (response.rows[0].role === roles.BANNED)) {
+                        reject('Your email adress not confirmed yet or you was banned')
                     } else {
                         resolve(response.rows[0].id)
                     }

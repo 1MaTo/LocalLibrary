@@ -10,6 +10,7 @@ import Box from '@material-ui/core/Box';
 import { theme } from '../../Theme/Theme'
 import Update from './account/update'
 import UserList from './lists/userList'
+import BookList from './lists/bookList'
 
 
 const Background = styled.div`
@@ -28,8 +29,17 @@ const StyledTabs = styled(Tabs)`
     background: ${theme.palette.background.dark};
 `
 
+const MenuTab = styled(Tab)`
+    min-width: 200px;
+    max-width: 200px;
+    padding: 15px 20px;
+    padding-right: 35px;
+`
+
 const StyledTabPanel = styled(TabPanel)`
+    width: inherit;
     overflow: auto;
+    position: relative;
 `
 
 function TabPanel(props) {
@@ -78,9 +88,9 @@ export default function Lk() {
                     onChange={handleChange}
                     aria-label="Vertical tabs example"
                 >
-                    <Tab label="Учетная запись" {...a11yProps(0)} />
-                    {permission === 'admin' ? <Tab label="Пользователи" {...a11yProps(1)} /> : null}
-                    {permission === 'admin' ? <Tab label="Книги" {...a11yProps(2)} /> : null}
+                    <MenuTab label="Учетная запись" {...a11yProps(0)} />
+                    {permission === 'admin' ? <MenuTab label="Пользователи" {...a11yProps(1)} /> : null}
+                    {permission === 'admin' ? <MenuTab label="Книги" {...a11yProps(2)} /> : null}
                 </StyledTabs>
                 <StyledTabPanel value={value} index={0}>
                     <Update />
@@ -89,7 +99,7 @@ export default function Lk() {
                     <UserList />
                 </StyledTabPanel>
                 <StyledTabPanel value={value} index={2}>
-
+                    <BookList />
                 </StyledTabPanel>
             </TabArea>
         </Background>

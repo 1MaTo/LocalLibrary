@@ -90,7 +90,6 @@ export const ChangeUserRole = ({ text, id, role, icon }) => {
                 handleSnackbar('Ошибка при обновлении роли у пользователя', 'error')
             })
     }
-
     return (
         <MenuButton
             path={'/lk'}

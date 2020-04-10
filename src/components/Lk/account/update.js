@@ -87,6 +87,7 @@ export default function Update() {
     }
 
     const handleSubmit = data => {
+        handleSnackbar('Ошибка при обновлении данных', 'error')
         var parsedData = {
             firstName: data.firstName,
             secondName: data.secondName,

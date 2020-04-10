@@ -27,6 +27,19 @@ const GlobalStyle = createGlobalStyle`
   .MuiButton-root {
     width: fit-content;
   }
+  *::-webkit-scrollbar {
+    width: 0.5em;
+  }
+  *::-webkit-scrollbar-thumb {
+    background: ${ theme.palette.primary.unhover};
+    border-radius: 7px;
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background: #ed565d;
+  }
+  #simple-popover {
+    z-index: 2;
+  }
 `
 const store = createStore(reducer)
 

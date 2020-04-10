@@ -70,18 +70,18 @@ export default function PopperMenu({ text, MenuButtons }) {
                 {({ TransitionProps, placement }) => (
                     <Grow
                         {...TransitionProps}
-                        style={{ transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom' }}
+                        style={{ transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom'}}
                     >
                         <Menu>
-                            <ClickAwayListener onClickAway={handleClose}>
-                                <StyledMenuList autoFocusItem={open} id="menu-list-grow" onKeyDown={handleListKeyDown}>
-                                    <MenuButtons/>
-                                </StyledMenuList>
-                            </ClickAwayListener>
+                        <ClickAwayListener onClickAway={handleClose}>
+                            <StyledMenuList autoFocusItem={open} id="menu-list-grow" onKeyDown={handleListKeyDown}>
+                                <MenuButtons />
+                            </StyledMenuList>
+                        </ClickAwayListener>
                         </Menu>
                     </Grow>
                 )}
             </PopperWindow>
-        </div>
+        </div >
     )
 }

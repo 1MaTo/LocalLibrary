@@ -13,9 +13,9 @@ import {
 } from '@material-ui/core'
 import EditIcon from '@material-ui/icons/MoreVert'
 import styled, { keyframes } from 'styled-components'
-import { theme } from '../../../Theme/Theme'
-import { ChangeUserRole } from '../../menu/Buttons/ActionButtons'
-import PopperMenu from '../../menu/PopperMenu'
+import { theme } from '../../../../Theme/Theme'
+import { ChangeUserRole } from '../../../menu/Buttons/ActionButtons'
+import PopperMenu from '../../../menu/PopperMenu'
 
 const Email = styled.span`
     color: rgba(0, 0, 0, 0.54);

@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react'
 import { List, Button, Typography } from '@material-ui/core'
 import axios from 'axios'
 import { useSnackbar } from 'notistack'
-import UserListItem from './listItems/userLIstItem'
 import { useSelector, useDispatch } from 'react-redux'
 import { Divider, ListSubheader } from '@material-ui/core'
 import styled from 'styled-components'
 import { theme } from '../../../Theme/Theme'
+import BookListItem from './listItems/bookListItem'
 
 const ActionPanel = styled.div`
     background: #b7b7b7;
@@ -148,7 +148,7 @@ export default function UserList() {
                             <SubHeaderTitle>{role.label}</SubHeaderTitle>
                             {userList.map(user => user.role === role.name ?
                                 <div key={user.id}>
-                                    <UserListItem
+                                    <BookListItem
                                         key={user.id}
                                         user={user}
                                         handleToggle={handleToggle}

@@ -17,6 +17,7 @@ export const theme = createMuiTheme({
     palette: {
         primary: {
             main: '#ED565D',
+            unhover: '#ed565d80'
         }, // Purple and green play nicely together.
         secondary: {
             main: '#544759',
