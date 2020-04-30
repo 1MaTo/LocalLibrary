@@ -17,55 +17,55 @@ axios.defaults.withCredentials = true
 
 function App() {
 
-  const dispatch = useDispatch()
-  const isLogin = useSelector(state => state.isLogin)
-  const [loading, setLoading] = useState(true)
+    const dispatch = useDispatch()
+    const isLogin = useSelector(state => state.isLogin)
+    const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    axios
-      .get('/api/user/info')
-      .then((response) => {
-        if (response.status === 200) {
-          dispatch({ type: "SET_USER", user: response.data })
-          dispatch({ type: "SET_LOGIN", isLogin: true })
-          setLoading(false)
-        }
-      })
-      .catch( err => {
-        setLoading(false)
-      })
-  }, [isLogin])
+    useEffect(() => {
+        axios
+            .get('/api/user/info')
+            .then((response) => {
+                if (response.status === 200) {
+                    dispatch({ type: "SET_USER", user: response.data })
+                    dispatch({ type: "SET_LOGIN", isLogin: true })
+                    setLoading(false)
+                }
+            })
+            .catch(err => {
+                setLoading(false)
+            })
+    }, [isLogin])
 
-  const PrivateRoute = ({ children, ...rest }) => {
+    const PrivateRoute = ({ children, ...rest }) => {
+        return (
+            <Route
+                {...rest}
+                render={() =>
+                    isLogin ? (
+                        children
+                    ) : (
+                            <Redirect
+                                to={{
+                                    pathname: "/auth/login",
+                                }}
+                            />
+                        )
+                }
+            />
+        );
+    }
+
     return (
-      <Route
-        {...rest}
-        render={() =>
-          isLogin ? (
-            children
-          ) : (
-              <Redirect
-                to={{
-                  pathname: "/auth/login",
-                }}
-              />
-            )
-        }
-      />
+        loading ? <Loading /> :
+            <Router>
+                <Route path="/" exact component={Home} />
+                <Route path="/auth" component={Auth} />
+                <Route path="/auth/login" component={Login} />
+                <Route path="/auth/registration" component={SingUp} />
+                <PrivateRoute path="/lk">
+                    <Lk />
+                </PrivateRoute>
+            </Router>
     );
-  }
-
-  return (
-    loading ? <Loading /> :
-      <Router>
-        <Route path="/" exact component={Home} />
-        <Route path="/auth" component={Auth} />
-        <Route path="/auth/login" component={Login} />
-        <Route path="/auth/registration" component={SingUp} />
-        <PrivateRoute path="/lk">
-          <Lk />
-        </PrivateRoute>
-      </Router>
-  );
 }
 export default App;

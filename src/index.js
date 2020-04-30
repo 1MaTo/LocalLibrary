@@ -41,6 +41,7 @@ const GlobalStyle = createGlobalStyle`
     z-index: 2;
   }
 `
+
 const store = createStore(reducer)
 
 const snackBarOption = {
