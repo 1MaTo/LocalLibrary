@@ -414,6 +414,83 @@ app.post('/api/logout', (req, res) => {
     res.status(200).send("User logout")
 })
 
+//Change user book list
+
+app.use('/api/userbooklist/*new*', (req, res, next) => {
+    req.isNew = {
+        isNew: true,
+    }
+    next()
+})
+
+app.use('/api/userbooklist/*state/:state*', (req, res, next) => {
+    req.data = {
+        state: req.params.state,
+        ...req.data
+    }
+    next()
+})
+
+app.use('/api/userbooklist/*progress/:progress*', (req, res, next) => {
+    req.data = {
+        progress: req.params.progress,
+        ...req.data
+    }
+    next()
+})
+
+app.use('/api/userbooklist/*userId/:userId*', (req, res, next) => {
+    req.data = {
+        userId: req.params.userId,
+        ...req.data
+    }
+    next()
+})
+
+app.use('/api/userbooklist/*bookId/:bookId*', (req, res, next) => {
+    req.data = {
+        bookId: req.params.bookId,
+        ...req.data
+    }
+    next()
+})
+
+app.use('/api/userbooklist/*endDate*', (req, res, next) => {
+    req.data = {
+        endDate: new Date().toISOString(),
+        ...req.data
+    }
+    next()
+})
+
+app.get('/api/userbooklist/*', (req, res) => {
+    var query = ''
+    if (Boolean(req.isNew)) {
+        const keys = Object.entries(req.data).map(([key, value]) => {
+            return (`"${key}"`)
+        }).join(',')
+        const values = Object.entries(req.data).map(([key, value]) => {
+            return (`'${value}'`)
+        }).join(',')
+        query = `INSERT INTO public."UserBookList"(${keys})
+        VALUES (${values});`
+    } else {
+        const reqSetting = Object.entries(req.data).map(([key, value]) => {
+            return (`"${key}"='${value}'`)
+        }).join(',')
+        query = `UPDATE public."UserBookList"
+        SET ${reqSetting}
+        WHERE "bookId"=${req.data.bookId} and "userId"=${req.data.userId};`
+    }
+    pg.query(query, (err, response) => {
+        if (err != null) {
+            console.log(err)
+        } else {
+            res.status(200).send('changes applied')
+        }
+    })
+})
+
 //Send comment
 app.post('/api/user/comment/send', (req, res) => {
     const query = `INSERT INTO "Comments"("userId", "bookId", message)
