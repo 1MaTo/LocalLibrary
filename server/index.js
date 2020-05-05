@@ -297,7 +297,7 @@ app.get('/api/book/:id', (req, res) => {
         "Books"."lastUpdate",
         "Books"."publicDate",
         "Books".author,
-        "Images".data,
+        encode("Images".data, 'base64') as data,
         "Images".type,
         (select count ("Ratings".rate) filter (where "Ratings".rate > 0) as likes from "Ratings" where "Ratings"."objectId" = "Books".id),
         (select count ("Ratings".rate) filter (where "Ratings".rate < 0) as dislikes from "Ratings" where "Ratings"."objectId" = "Books".id)
@@ -313,7 +313,12 @@ app.get('/api/book/:id', (req, res) => {
                 res.status(404).send("Book not found")
             else {
                 pg.query(query, (err, response) => {
-                    res.status(200).send(JSON.stringify(response.rows));
+                    res.status(200).send(JSON.stringify({
+                        ...response.rows[0],
+                        avatar: `data:image/${response.rows[0].type};base64, ${response.rows[0].data}`,
+                        type: null,
+                        data: null,
+                    }));
                 })
             }
         }
