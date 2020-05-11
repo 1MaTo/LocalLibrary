@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
     ListItem,
     ListItemAvatar,
@@ -10,115 +10,148 @@ import {
     MenuItem,
     Avatar,
     Menu,
+    ButtonBase,
+    Typography,
 } from '@material-ui/core'
 import EditIcon from '@material-ui/icons/MoreVert'
 import styled, { keyframes } from 'styled-components'
 import { theme } from '../../../../Theme/Theme'
 import { ChangeUserRole } from '../../../menu/Buttons/ActionButtons'
 import PopperMenu from '../../../menu/PopperMenu'
+import { useDispatch, useSelector } from 'react-redux'
+import { useUpdate } from '../../../../store/updateStore'
+import { Loading } from '../../../Loading/Loading'
 
-const Email = styled.span`
-    color: rgba(0, 0, 0, 0.54);
+const PopUp = keyframes`
+    from {
+        opacity: 0%;
+        transform: translate(0px, 20px);
+    }
+    to { 
+        opacity: 100%;
+        transform: translate(0px, 0px);
+    }
 `
 
-const changeBackground = keyframes`
-    from {background: ${theme.palette.background.dark}}
-    to { background: ${theme.palette.background.highlight};}
+const OnHover = keyframes`
+    from {
+        transform: translate(0px, 0px);
+        box-shadow: 0px 0px 0px 0px;
+    } to {
+        transform: translate(0px, -5px);
+        box-shadow: 0px 10px 15px -5px;
+    }
 `
 
-const User = styled(ListItem)`
-    background: ${props => theme.palette.background[props.checked ? 'highlight' : 'dark']};
-    padding-right: 190px;
-    cursor: default;
-    transition: all 0.15s linear;
+const BookCard = styled(ButtonBase)`
+    margin: 0px 10px 10px 0px;
+    padding: 0px;
+    height: 370px;
+    display: flex;
+    flex-direction: column;
+    border-radius: 5px;
+    && {
+        width: 200px;
+    }
+    transition: all 0.15s ease-out;
+    animation: ${PopUp} 0.5s ease-out;
     &:hover {
-        animation: ${props => !props.checked ? changeBackground : null} 0.15s linear;
-        background: ${theme.palette.background.highlight};
+        transform: translate(0px, -5px);
+        box-shadow: 0px 10px 15px -5px;
+    }
+    &:active {
+        transform: translate(0px, -2px);
+        box-shadow: 0px 10px 10px -5px;
     }
 `
 
-export default function UserListItem({ user, checked, handleToggle }) {
+const ImageContainer = styled(Avatar)`
+    flex: 7;
+    border-radius: 0px;
+    width: 100%;
+    border-top-left-radius: inherit;
+    border-top-right-radius: inherit;
+`
 
-    const getNameAvatar = (first, second) => {
-        return Boolean(first) && Boolean(second) ?
-            first[0].toUpperCase() + second[0].toUpperCase() : ''
-    }
+const InfoPanel = styled.div`
+    display: flex;
+    flex: 2;
+    flex-direction: column;
+    background: ${theme.palette.secondary.main};
+    width: 100%;
+    border-bottom-left-radius: inherit;
+    border-bottom-right-radius: inherit;
+    color: ${theme.palette.text.main};
+`
 
-    const PrimaryText = (name, email) => {
-        return (
-            <div>
-                {name}
-                <Email>{'#' + email}</Email>
-            </div>
-        )
-    }
+const Name = styled.div`
+    padding: 3px;
+    flex: 4;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-height: 23px;
+    overflow: hidden;
+    text-align: left;
+    font-size: 14px;
+    text-overflow: ellipsis;
+`
 
-    const getDate = (date = new Date()) => {
-        const time = {
-            yy: date.getFullYear(),
-            mm: date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : (date.getMonth() + 1),
-            dd: date.getDate() < 10 ? '0' + date.getDate() : date.getDate(),
-            hh: date.getHours() < 10 ? '0' + date.getHours() : date.getHours(),
-            min: date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes(),
-            ss: date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds(),
-        }
-        return `${time.dd}-${time.mm}-${time.yy}`
-    }
+const Statistic = styled.div`
+    flex: 3;
+    display: flex;
+    flex-direction: row;
+`
 
-    const [roles] = useState([
-        {
-            name: 'admin',
-            label: 'Администратор'
-        }, {
-            name: 'moderator',
-            label: 'Модератор'
-        }, {
-            name: 'user',
-            label: 'Пользователи'
-        }, {
-            name: 'banned',
-            label: 'Забанить'
-        }
-    ])
+const StatisticItem = styled.div`
+    flex: 1;
+    background: ${props => props.color ? props.color : 'unset'};
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`
 
-    const RoleButtons = () => {
+const Text = styled.div`
 
-        let mass = []
+`
 
-        roles.forEach(role => {
-            if (role.name !== user.role) {
-                mass.push(<ChangeUserRole key={role.name} text={role.label} id={user.id} role={role.name} />)
-            }
-        })
+export default function BookListItem({id, avatar, name}) {
 
-        return (mass)
-    }
+    const getReservedCount = useUpdate("BOOK_READING_STAT")
+    const [reservedCount, setReservedCount] = useState(0)
+    const [isLoading, setLoading] = useState(true)
+
+    useEffect(() => {
+        getReservedCount(id)
+            .then(response => {
+                setReservedCount(response.data.length)
+                setLoading(false)
+            })
+    }, [])
 
     return (
-        <User onClick={handleToggle(user.id)} checked={checked.indexOf(user.id) !== -1}>
-            <ListItemIcon>
-                <Checkbox
-                    edge="start"
-                    checked={checked.indexOf(user.id) !== -1}
-                    tabIndex={-1}
-                    inputProps={{ 'aria-labelledby': user.id }}
-                />
-            </ListItemIcon>
-            <ListItemAvatar>
-                <Avatar src={user.avatar}>
-                    {getNameAvatar(user.firstName, user.secondName)}
-                </Avatar>
-            </ListItemAvatar>
-            <ListItemText
-                id={user.id}
-                primary={PrimaryText(`${user.firstName} ${user.secondName}`, user.email)}
-                secondary={`Регистрация: ${getDate(new Date(user.registerDate))}`} />
-            <ListItemSecondaryAction>
-                <PopperMenu
-                    text={user.role}
-                    info={user.id}
-                    MenuButtons={RoleButtons} />
-            </ListItemSecondaryAction>
-        </User>
+        <BookCard>
+            {isLoading ? <Loading /> :
+                <>
+                    <ImageContainer imgProps={{ draggable: false }} variant="rounded" src={avatar} />
+                    <InfoPanel>
+                        <Name>
+                            {name}
+                        </Name>
+                        <Statistic>
+                            <StatisticItem>
+                                <Text>{2012}</Text>
+                            </StatisticItem>
+                            <StatisticItem>
+                                <Text>{reservedCount}</Text>
+                            </StatisticItem>
+                            <StatisticItem>
+                                <Text>0</Text>
+                            </StatisticItem>
+                        </Statistic>
+                    </InfoPanel>
+                </>
+            }
+        </BookCard>
     )
 }

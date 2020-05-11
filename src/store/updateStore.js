@@ -8,7 +8,7 @@ export function useUpdate(type) {
     const { enqueueSnackbar } = useSnackbar();
 
     const handleSnackbar = (message, variant) => {
-        enqueueSnackbar(message, { variant, autoHideDuration: 1000});
+        enqueueSnackbar(message, { variant, autoHideDuration: 1000 });
     }
 
     const dispatch = useDispatch()
@@ -43,11 +43,35 @@ export function useUpdate(type) {
             })
     }
 
+    const bookList = () =>
+        axios
+            .get('/api/books/')
+            .then((response) => {
+                if (response.status === 200) {
+                    dispatch({ type: "SET_BOOKS", books: response.data })
+                }
+            })
+            .catch(error => {
+                console.log('Cant get books')
+            })
+
+    const bookReadingStat = (id) =>
+        axios.get(`/api/book/users/reading/${id}`)
+
+    const getBookInfo = (id) =>
+        axios.get(`api/book/${id}`)
+
     switch (type) {
         case 'USER':
             return user
         case 'USERLIST':
             return userList
+        case 'BOOKS':
+            return bookList
+        case 'BOOK_READING_STAT':
+            return bookReadingStat
+        case 'GET_BOOK':
+            return getBookInfo
         default:
             return false
     }

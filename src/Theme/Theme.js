@@ -11,7 +11,7 @@ export const theme = createMuiTheme({
     props: {
         MuiButtonBase: {
             // The properties to apply
-            disableRipple: true, // No more ripple, on the whole application 💣!
+            disableRipple: false, // No more ripple, on the whole application 💣!
         },
     },
     palette: {
@@ -24,6 +24,10 @@ export const theme = createMuiTheme({
         }, // This is just green.A700 as hex.
         error: {
             main: '#f44336'
+        },
+        text : {
+            active: "#000000",
+            main: "#E1E1E1"
         },
         warning: {
             main: '#ff9800'
