@@ -20,7 +20,6 @@ export function useUpdate(type) {
                 if (response.status === 200) {
                     dispatch({ type: "SET_USER", user: response.data })
                     //handleSnackbar('Данные обновлены', 'success')
-                    console.log(response.data)
                 }
             })
             .catch(error => {
@@ -49,6 +48,7 @@ export function useUpdate(type) {
             .then((response) => {
                 if (response.status === 200) {
                     dispatch({ type: "SET_BOOKS", books: response.data })
+                    return (response.data)
                 }
             })
             .catch(error => {
@@ -59,7 +59,22 @@ export function useUpdate(type) {
         axios.get(`/api/book/users/reading/${id}`)
 
     const getBookInfo = (id) =>
-        axios.get(`api/book/${id}`)
+        axios.get(`/api/book/${id}`)
+
+    const deleteBooks = (id) => {
+        return Promise.all(id.map(id => {
+            return axios.post(`/api/delete/book/${id}`)
+        }))
+            .then(ok => {
+                handleSnackbar('Книги удалены', 'success')
+                return (true)
+            })
+            .catch(error => {
+                console.log(error)
+                handleSnackbar('Ошибка во время удаления', 'error')
+                return (false)
+            })
+    }
 
     switch (type) {
         case 'USER':
@@ -72,6 +87,8 @@ export function useUpdate(type) {
             return bookReadingStat
         case 'GET_BOOK':
             return getBookInfo
+        case 'DELETE_BOOKS':
+            return deleteBooks
         default:
             return false
     }

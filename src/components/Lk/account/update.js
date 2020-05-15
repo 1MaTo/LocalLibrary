@@ -87,7 +87,6 @@ export default function Update() {
     }
 
     const handleSubmit = data => {
-        handleSnackbar('Ошибка при обновлении данных', 'error')
         var parsedData = {
             firstName: data.firstName,
             secondName: data.secondName,
@@ -103,6 +102,7 @@ export default function Update() {
             .then((response) => {
                 if (response.status === 200) {
                     updateUser()
+                    handleSnackbar('Данные обновлены', 'success')
                     setLoading(false)
                 }
             })

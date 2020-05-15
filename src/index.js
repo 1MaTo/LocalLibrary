@@ -9,6 +9,7 @@ import { StylesProvider } from '@material-ui/styles';
 import { theme } from './Theme/Theme'
 import { createGlobalStyle } from "styled-components"
 import { SnackbarProvider } from 'notistack';
+import 'typeface-roboto';
 
 const GlobalStyle = createGlobalStyle`
   a {
@@ -39,6 +40,10 @@ const GlobalStyle = createGlobalStyle`
   }
   #simple-popover {
     z-index: 2;
+  }
+  .Control-panel .MuiBox-root {
+    padding: 0px;
+    height: 100%;
   }
 `
 

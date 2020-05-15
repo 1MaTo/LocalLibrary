@@ -38,6 +38,10 @@ const SelectButton = styled(Button)`
     margin-right: 5px;
 `
 
+const StyledList = styled(List)`
+    padding: 0px;
+`
+
 export default function UserList() {
 
     const userList = useSelector(state => state.userList)
@@ -137,11 +141,11 @@ export default function UserList() {
 
     useEffect(() => {
         updateInfo()
-    }, [])
+    }, [userList])
 
     return (
         <div>
-            <List>
+            <StyledList>
                 {roles.map(role => {
                     return (userList.findIndex(user => user.role === role.name) !== -1) ?
                         <div key={role.name}>
@@ -158,7 +162,7 @@ export default function UserList() {
                             )}
                         </div> : null
                 })}
-            </List >
+            </StyledList >
             {checked.length ? <ActionPanel>
                 <SelectedText>{`Выбрано: ${checked.length}`}</SelectedText>
                 <SelectButton

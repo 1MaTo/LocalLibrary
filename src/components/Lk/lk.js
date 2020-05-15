@@ -25,15 +25,13 @@ const TabArea = styled(Container)`
 `
 
 const StyledTabs = styled(Tabs)`
+    min-width: 190px;
     border-right: 1px solid ${theme.palette.divider};
     background: ${theme.palette.background.dark};
 `
 
 const MenuTab = styled(Tab)`
-    min-width: 200px;
-    max-width: 200px;
-    padding: 15px 20px;
-    padding-right: 35px;
+    font-size: 0.75rem;
 `
 
 const StyledTabPanel = styled(TabPanel)`
@@ -78,7 +76,7 @@ export default function Lk() {
     return (
         <Background>
             <HeaderMenu />
-            <TabArea>
+            <TabArea className="Control-panel">
                 <StyledTabs
                     textColor="primary"
                     indicatorColor="primary"
@@ -91,6 +89,7 @@ export default function Lk() {
                     <MenuTab label="Учетная запись" {...a11yProps(0)} />
                     {permission === 'admin' ? <MenuTab label="Пользователи" {...a11yProps(1)} /> : null}
                     {permission === 'admin' ? <MenuTab label="Книги" {...a11yProps(2)} /> : null}
+                    {permission === 'admin' ? <MenuTab label="Добавить книгу" {...a11yProps(3)} /> : null}
                 </StyledTabs>
                 <StyledTabPanel value={value} index={0}>
                     <Update />
