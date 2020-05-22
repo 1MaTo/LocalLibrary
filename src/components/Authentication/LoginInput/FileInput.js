@@ -4,10 +4,10 @@ import { useDropzone } from 'react-dropzone';
 
 const FileInputForm = styled.div`
     position: absolute;
-    border-radius: 50%;
+    border-radius: inherit;
     font-family: "Roboto", "Helvetica", "Arial", sans-serif;
-    width: 150px;
-    height: 150px;
+    width: inherit;
+    height: inherit;
     outline: none;
     display: flex;
     text-align: center;
@@ -15,6 +15,7 @@ const FileInputForm = styled.div`
     justify-content: center;
     font-size: 1.1em;
     color: rgba(0,0,0,0);
+    transition: all 0.2s ease-in-out;
     &:hover {
         cursor: pointer;
         color: rgb(255,255,255);

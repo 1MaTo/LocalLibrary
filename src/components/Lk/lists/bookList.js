@@ -89,7 +89,6 @@ export default function BookList() {
     }
 
     useEffect(() => {
-        console.log('sds')
         loadBooks()
             .then((data) => {
                 setResults(data)

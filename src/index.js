@@ -10,6 +10,10 @@ import { theme } from './Theme/Theme'
 import { createGlobalStyle } from "styled-components"
 import { SnackbarProvider } from 'notistack';
 import 'typeface-roboto';
+import { MuiPickersUtilsProvider } from '@material-ui/pickers';
+import moment from "moment";
+import MomentUtils from "@date-io/moment";
+import "moment/locale/ru";
 
 const GlobalStyle = createGlobalStyle`
   a {
@@ -57,7 +61,10 @@ const snackBarOption = {
   autoHideDuration: 3000,
 }
 
+moment.locale("ru")
+
 const Index = () => {
+
   return (
     <StylesProvider injectFirst>
       <ThemeProvider theme={theme}>
@@ -66,8 +73,13 @@ const Index = () => {
             anchorOrigin={snackBarOption.anchorOrigin}
             autoHideDuration={snackBarOption.autoHideDuration}
             maxSnack={3}>
-            <App />
-            <GlobalStyle theme={theme} />
+            <MuiPickersUtilsProvider
+              libInstance={moment}
+              utils={MomentUtils}
+              locale={"ru"}>
+              <App />
+              <GlobalStyle theme={theme} />
+            </MuiPickersUtilsProvider>
           </SnackbarProvider>
         </Provider>
       </ThemeProvider>

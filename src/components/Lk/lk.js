@@ -11,6 +11,7 @@ import { theme } from '../../Theme/Theme'
 import Update from './account/update'
 import UserList from './lists/userList'
 import BookList from './lists/bookList'
+import AddBook from './AddBook'
 
 
 const Background = styled.div`
@@ -99,6 +100,9 @@ export default function Lk() {
                 </StyledTabPanel>
                 <StyledTabPanel value={value} index={2}>
                     <BookList />
+                </StyledTabPanel>
+                <StyledTabPanel value={value} index={3}>
+                    <AddBook />
                 </StyledTabPanel>
             </TabArea>
         </Background>

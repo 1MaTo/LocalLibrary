@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Form, Field } from 'react-final-form'
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
@@ -42,11 +42,14 @@ const ImageContainer = styled(Grid)`
     display: flex;
     justify-content: center;
     align-items: center;
+    border-radius: 50%;
+    width: 150px;
+    height: 150px;
 `
 
 const Image = styled(Avatar)`
-    width: 150px;
-    height: 150px;
+    width: inherit;
+    height: inherit;
     font-size: 4.0em;
 `
 

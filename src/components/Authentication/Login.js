@@ -114,6 +114,7 @@ export default function SignUp(props) {
                                 <Field name='email'>
                                     {props => (
                                         <TextInput
+                                            autoComplete="email"
                                             props={props}
                                             error={errors.error}
                                             label={'Email'}

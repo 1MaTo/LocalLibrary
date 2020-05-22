@@ -67,11 +67,14 @@ const ImageContainer = styled(Grid)`
     display: flex;
     justify-content: center;
     align-items: center;
+    border-radius: 50%;
+    width: 150px;
+    height: 150px;
 `
 
 const Image = styled(Avatar)`
-    width: 150px;
-    height: 150px;
+    width: inherit;
+    height: inherit;
     font-size: 4.0em;
 `
 
