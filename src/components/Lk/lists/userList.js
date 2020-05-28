@@ -141,7 +141,7 @@ export default function UserList() {
 
     useEffect(() => {
         updateInfo()
-    }, [userList])
+    }, [])
 
     return (
         <div>
